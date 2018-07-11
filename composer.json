@@ -1,0 +1,24 @@
+{
+    "name": "cinghie/yii2-aws",
+    "description": "Yii2 Amazon Web Services (AWS)",
+    "keywords": [],
+    "homepage": "https://github.com/cinghie/yii2-aws",
+    "type": "yii2-extension",
+    "license": "GNU GPL3",
+    "authors": [
+        {
+            "name": "Gogodigital.it",
+            "email": "info@gogodigital.it",
+            "homepage": "http://www.gogodigital.it/"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "^2.0.10",
+        
+    },
+    "autoload": {
+        "psr-4": {
+            "cinghie\\amazon\\": ""
+        }
+    }
+}
