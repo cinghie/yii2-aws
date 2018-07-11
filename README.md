@@ -1,2 +1,2 @@
-# yii2-aws
+# Yii2 AWS
 Yii2 Amazon Web Services (AWS)
