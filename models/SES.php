@@ -22,12 +22,21 @@ class SES
 	/**
 	 * @@inheritdoc
 	 */
-	public function init()
+	function init()
 	{
 		if(!Yii::$app->controller->module->accessKey)
 		{
+			echo 'CIAO';
 			Yii::$app->session->setFlash('error', Yii::t('aws', 'Access Key missing!'));
 		}
+	}
+
+	/**
+	 * Check accessKey and secretKey
+	 */
+	public function checkKeys()
+	{
+		echo 'Hello Word!';
 	}
 
 }
