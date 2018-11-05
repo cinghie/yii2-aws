@@ -16,7 +16,6 @@ use yii\base\Module;
 
 class AWS extends Module
 {
-
 	/**
 	 * @var string Amazon API Access Key
 	 */
@@ -27,4 +26,28 @@ class AWS extends Module
 	 */
 	public $secretKey = '';
 
+	/**
+	 * @inheritdoc
+	 *
+	 * @throws InvalidParamException
+	 */
+	public function init()
+	{
+		parent::init();
+		$this->registerTranslations();
+	}
+
+	/**
+	 * Translating module message
+	 */
+	public function registerTranslations()
+	{
+		if (!isset(Yii::$app->i18n->translations['aws*']))
+		{
+			Yii::$app->i18n->translations['aws*'] = [
+				'class' => PhpMessageSource::class,
+				'basePath' => __DIR__ . '/messages',
+			];
+		}
+	}
 }
