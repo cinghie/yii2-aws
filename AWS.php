@@ -12,7 +12,6 @@
 
 namespace cinghie\aws;
 
-use Yii;
 use yii\base\Module;
 
 class AWS extends Module
@@ -27,13 +26,5 @@ class AWS extends Module
 	 * @var string Amazon Secret Key
 	 */
 	public $secretKey = '';
-
-	/**
-	 * @inheritdoc
-	 */
-	public function init()
-	{
-		parent::init();
-	}
 
 }

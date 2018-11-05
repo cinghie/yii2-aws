@@ -13,8 +13,9 @@
         }
     ],
     "require": {
-        "yiisoft/yii2": "^2.0.10",
-        "aws/aws-sdk-php": "^3.0"
+        "yiisoft/yii2": "^2.0.15",
+        "aws/aws-sdk-php": "^3.0.0",
+        "roave/security-advisories": "dev-master"
     },
     "autoload": {
         "psr-4": {

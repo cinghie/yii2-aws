@@ -22,11 +22,9 @@ class SES
 	/**
 	 * @@inheritdoc
 	 */
-	function init()
+	public function init()
 	{
-		if(!Yii::$app->controller->module->accessKey)
-		{
-			echo 'CIAO';
+		if(!Yii::$app->controller->module->accessKey) {
 			Yii::$app->session->setFlash('error', Yii::t('aws', 'Access Key missing!'));
 		}
 	}
