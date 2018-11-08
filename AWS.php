@@ -7,24 +7,39 @@
  * @github https://github.com/cinghie/yii2-aws
  * @license BSD-3-Clause
  * @package yii2-aws
- * @version 0.0.1
+ * @version 0.1.0
  */
 
 namespace cinghie\aws;
 
 use yii\base\Module;
 
+/**
+ * Class AWS
+ *
+ * @package cinghie\aws
+ */
 class AWS extends Module
 {
 	/**
 	 * @var string Amazon API Access Key
 	 */
-	public $accessKey = '';
+	public $awsAccessKey = '';
 
 	/**
-	 * @var string Amazon Secret Key
+	 * @var string Amazon API Region
 	 */
-	public $secretKey = '';
+	public $awsRegion = 'eu-central-1';
+
+	/**
+	 * @var string Amazon API Secret Key
+	 */
+	public $awsSecretKey = '';
+
+	/**
+	 * @var string Amazon API Version
+	 */
+	public $awsVersion = 'latest';
 
 	/**
 	 * @inheritdoc

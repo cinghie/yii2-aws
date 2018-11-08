@@ -7,34 +7,26 @@
  * @github https://github.com/cinghie/yii2-aws
  * @license BSD-3-Clause
  * @package yii2-aws
- * @version 0.0.1
+ * @version 0.1.0
  */
 
 namespace cinghie\aws\models;
 
-use Yii;
-use Aws\Ses\Exception\SesException;
-use Aws\Ses\SesClient;
-
-class SES
+/**
+ * Class SES
+ *
+ * @package cinghie\aws\models
+ * @see [SES Developer Guide](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/getting-started.html)
+ */
+class SES extends AWS
 {
-
 	/**
 	 * @@inheritdoc
 	 */
-	public function init()
+	public function getSES()
 	{
-		if(!Yii::$app->controller->module->accessKey) {
-			Yii::$app->session->setFlash('error', Yii::t('aws', 'Access Key missing!'));
-		}
-	}
+		$sdk = $this->getSDK();
 
-	/**
-	 * Check accessKey and secretKey
-	 */
-	public function checkKeys()
-	{
-		echo 'Hello Word!';
+		return $sdk->createSes();
 	}
-
 }
