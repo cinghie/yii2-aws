@@ -40,7 +40,92 @@ class SES extends AWS
 	}
 
 	/**
-	 * List email adress Identities
+	 * To create a template to send personalized email messages, use the CreateTemplate operation.
+	 * The template can be used by any account authorized to send messages in the AWS Region to which the template is added.
+	 *
+	 * @param string $name
+	 * @param string $subject
+	 * @param string $html_body
+	 * @param string $plaintext_body
+	 */
+	public function createTemplate($name, $subject, $html_body, $plaintext_body)
+	{
+		try {
+
+			$this->sesClient->createTemplate([
+				'Template' => [
+					'HtmlPart' => $html_body,
+					'SubjectPart' => $subject,
+					'TemplateName' => $name,
+					'TextPart' => $plaintext_body,
+				],
+			]);
+			Yii::$app->session->setFlash('success', Yii::t('aws', 'Template {0} correctly created',$name));
+
+		} catch (AwsException $e) {
+
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+	}
+
+	/**
+	 * Delete a verified email domain from the list of verified identities
+	 *
+	 * @param string $domain
+	 */
+	public function deleteDomain($domain)
+	{
+		try {
+
+			$this->sesClient->deleteIdentity(['Identity' => $domain]);
+			Yii::$app->session->setFlash('info', Yii::t('aws', 'Domain {0} deleted from the list of identities',$domain));
+
+		} catch (AwsException $e) {
+
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+	}
+
+	/**
+	 * Delete a verified email address from the list of identities
+	 *
+	 * @param string $email
+	 */
+	public function deleteEmail($email)
+	{
+		try {
+
+			$this->sesClient->deleteIdentity(['Identity' => $email]);
+			Yii::$app->session->setFlash('info', Yii::t('aws', 'Email {0} deleted from the list of identities',$email));
+
+		} catch (AwsException $e) {
+
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+	}
+
+	/**
+	 * List all domains Identities
+	 *
+	 * @return array
+	 */
+	public function listDomains()
+	{
+		try {
+
+			$result = $this->sesClient->listIdentities(['IdentityType' => 'Domain',]);
+			$identities = $result['Identities'];
+
+		} catch (AwsException $e) {
+
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		return $identities;
+	}
+
+	/**
+	 * List all email adress Identities
 	 *
 	 * @return array
 	 */
@@ -57,6 +142,24 @@ class SES extends AWS
 		}
 
 		return $identities;
+	}
+
+	/**
+	 * Test CreateTemplate operation.
+	 *
+	 * @return void
+	 */
+	public function testCreateTemplate()
+	{
+		$name = 'Template_Name';
+		$html_body = '<h1>AWS Amazon Simple Email Service Test Email</h1>' .
+			'<p>This email was sent with <a href="https://aws.amazon.com/ses/">' .
+			'Amazon SES</a> using the <a href="https://aws.amazon.com/sdk-for-php/">' .
+			'AWS SDK for PHP</a>.</p>';
+		$subject = 'Amazon SES test (AWS SDK for PHP)';
+		$plaintext_body = 'This email was send with Amazon SES using the AWS SDK for PHP.';
+
+		$this->createTemplate($name, $subject, $html_body, $plaintext_body);
 	}
 
 	/**

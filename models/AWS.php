@@ -26,6 +26,9 @@ class AWS
 	/** @var string $accessKey */
 	public $accessKey;
 
+	/** @var bool|array $debug */
+	public $debug;
+
 	/** @var string $profile */
 	public $profile;
 
@@ -54,6 +57,7 @@ class AWS
 		}
 
 		$this->accessKey = Yii::$app->getModule('aws')->accessKey;
+		$this->debug     = Yii::$app->getModule('aws')->debug;
 		$this->profile   = Yii::$app->getModule('aws')->profile;
 		$this->region    = Yii::$app->getModule('aws')->region;
 		$this->secretKey = Yii::$app->getModule('aws')->secretKey;
@@ -70,6 +74,7 @@ class AWS
 				'key' => $this->accessKey,
 				'secret' => $this->secretKey,
 			],
+			'debug' => $this->debug ,
 			'region' => $this->region,
 			'version' => $this->version
 		];

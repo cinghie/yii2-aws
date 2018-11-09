@@ -28,6 +28,9 @@ class AWS extends Module
 	 */
 	public $accessKey = '';
 
+	/** @var bool|array $debug */
+	public $debug;
+
 	/**
 	 * @var string Amazon API Region
 	 */
