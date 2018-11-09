@@ -24,18 +24,26 @@ use yii\base\InvalidConfigException;
 class AWS
 {
 	/** @var string $accessKey */
-	private $accessKey;
+	public $accessKey;
+
+	/** @var string $profile */
+	public $profile;
 
 	/** @var string $region */
-	private $region;
+	public $region;
 
 	/** @var string $secretKey */
-	private $secretKey;
+	public $secretKey;
+
+	/** @var string $secretKey */
+	public $version;
 
 	/**
-	 * @@inheritdoc
+	 * AWS constructor
+	 *
+	 * @throws InvalidConfigException
 	 */
-	public function init()
+	public function __construct()
 	{
 		if(!Yii::$app->getModule('aws')->accessKey) {
 			throw new InvalidConfigException(Yii::t('aws', 'AWS Access Key missing!'));
@@ -45,10 +53,11 @@ class AWS
 			throw new InvalidConfigException(Yii::t('aws', 'AWS Secret Key missing!'));
 		}
 
-		$this->accessKey = Yii::$app->getModule('aws')->awsAccessKey;
-		$this->region    = Yii::$app->getModule('aws')->awsRegion;
-		$this->secretKey = Yii::$app->getModule('aws')->awsSecretKey;
-		$this->version   = Yii::$app->getModule('aws')->awsVersion;
+		$this->accessKey = Yii::$app->getModule('aws')->accessKey;
+		$this->profile   = Yii::$app->getModule('aws')->profile;
+		$this->region    = Yii::$app->getModule('aws')->region;
+		$this->secretKey = Yii::$app->getModule('aws')->secretKey;
+		$this->version   = Yii::$app->getModule('aws')->version;
 	}
 
 	/**
@@ -56,14 +65,19 @@ class AWS
 	 */
 	public function getSDK()
 	{
-		$client = new Sdk([
+		$sdkOptions = [
 			'credentials' => [
 				'key' => $this->accessKey,
 				'secret' => $this->secretKey,
 			],
-			'region' => $this->region
-		]);
+			'region' => $this->region,
+			'version' => $this->version
+		];
 
-		return $client;
+		if($this->profile) {
+			$sdkOptions['profile'] = Yii::$app->getModule('aws')->profile;
+		}
+
+		return new Sdk($sdkOptions);
 	}
 }

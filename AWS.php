@@ -12,6 +12,8 @@
 
 namespace cinghie\aws;
 
+use Yii;
+use yii\i18n\PhpMessageSource;
 use yii\base\Module;
 
 /**
@@ -24,22 +26,27 @@ class AWS extends Module
 	/**
 	 * @var string Amazon API Access Key
 	 */
-	public $awsAccessKey = '';
+	public $accessKey = '';
 
 	/**
 	 * @var string Amazon API Region
 	 */
-	public $awsRegion = 'eu-central-1';
+	public $profile = '';
+
+	/**
+	 * @var string Amazon API Region
+	 */
+	public $region = 'eu-west-1';
 
 	/**
 	 * @var string Amazon API Secret Key
 	 */
-	public $awsSecretKey = '';
+	public $secretKey = '';
 
 	/**
 	 * @var string Amazon API Version
 	 */
-	public $awsVersion = 'latest';
+	public $version = 'latest';
 
 	/**
 	 * @inheritdoc
