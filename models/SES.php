@@ -47,6 +47,8 @@ class SES extends AWS
 	 * @param string $subject
 	 * @param string $html_body
 	 * @param string $plaintext_body
+	 *
+	 * @return bool
 	 */
 	public function createTemplate($name, $subject, $html_body, $plaintext_body)
 	{
@@ -62,16 +64,70 @@ class SES extends AWS
 			]);
 			Yii::$app->session->setFlash('success', Yii::t('aws', 'Template {0} correctly created',$name));
 
+			return true;
+
 		} catch (AwsException $e) {
 
 			Yii::$app->session->setFlash('error', $e->getMessage());
+
+			return false;
 		}
 	}
 
 	/**
-	 * Delete a verified email domain from the list of verified identities
+	 * To view the content for an existing email template including the subject line, HTML body, and plain text, use the GetTemplate operation.
+	 * Only TemplateName is required.
+	 *
+	 * @param $name
+	 *
+	 * @return array|\Aws\Result
+	 */
+	public function getTemplate($name)
+	{
+		try {
+
+			return $this->sesClient->getTemplate(['TemplateName' => $name]);
+
+		} catch (AwsException $e) {
+
+			Yii::$app->session->setFlash('error', $e->getMessage());
+
+			return [];
+		}
+	}
+
+	/**
+	 * To remove a specific email template, use the DeleteTemplate operation.
+	 * All you need is the TemplateName.
+	 *
+	 * @param $name
+	 *
+	 * @return bool
+	 */
+	public function deleteTemplate($name)
+	{
+		try {
+
+			$this->sesClient->deleteTemplate(['TemplateName' => $name,]);
+			Yii::$app->session->setFlash('info', Yii::t('aws', 'Email Template deleted correctly'));
+
+			return true;
+
+		} catch (AwsException $e) {
+
+			Yii::$app->session->setFlash('error', $e->getMessage());
+
+			return false;
+		}
+	}
+
+	/**
+	 * To delete a verified email domain from the list of verified identities,
+	 * use the DeleteIdentity operation.
 	 *
 	 * @param string $domain
+	 *
+	 * @return bool
 	 */
 	public function deleteDomain($domain)
 	{
@@ -80,16 +136,23 @@ class SES extends AWS
 			$this->sesClient->deleteIdentity(['Identity' => $domain]);
 			Yii::$app->session->setFlash('info', Yii::t('aws', 'Domain {0} deleted from the list of identities',$domain));
 
+			return true;
+
 		} catch (AwsException $e) {
 
 			Yii::$app->session->setFlash('error', $e->getMessage());
+
+			return false;
 		}
 	}
 
 	/**
-	 * Delete a verified email address from the list of identities
+	 * To delete a verified email address from the list of identities,
+	 * use the DeleteIdentity operation.
 	 *
 	 * @param string $email
+	 *
+	 * @return bool
 	 */
 	public function deleteEmail($email)
 	{
@@ -98,14 +161,19 @@ class SES extends AWS
 			$this->sesClient->deleteIdentity(['Identity' => $email]);
 			Yii::$app->session->setFlash('info', Yii::t('aws', 'Email {0} deleted from the list of identities',$email));
 
+			return true;
+
 		} catch (AwsException $e) {
 
 			Yii::$app->session->setFlash('error', $e->getMessage());
+
+			return false;
 		}
 	}
 
 	/**
-	 * List all domains Identities
+	 * To retrieve a list of email domains submitted in the current AWS Region,
+	 * regardless of verification status use the ListIdentities operation.
 	 *
 	 * @return array
 	 */
@@ -114,18 +182,20 @@ class SES extends AWS
 		try {
 
 			$result = $this->sesClient->listIdentities(['IdentityType' => 'Domain',]);
-			$identities = $result['Identities'];
+
+			return $result['Identities'];
 
 		} catch (AwsException $e) {
 
 			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
 
-		return $identities;
+			return [];
+		}
 	}
 
 	/**
-	 * List all email adress Identities
+	 * To retrieve a list of email addresses submitted in the current AWS Region,
+	 * regardless of verification status, use the ListIdentities operation.
 	 *
 	 * @return array
 	 */
@@ -134,14 +204,15 @@ class SES extends AWS
 		try {
 
 			$result = $this->sesClient->listIdentities(['IdentityType' => 'EmailAddress',]);
-			$identities = $result['Identities'];
+
+			return $result['Identities'];
 
 		} catch (AwsException $e) {
 
 			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
 
-		return $identities;
+			return [];
+		}
 	}
 
 	/**
@@ -163,11 +234,13 @@ class SES extends AWS
 	}
 
 	/**
-	 * Verify Domain Identity to send from Amazon SES
+	 * Amazon SES can send email only from verified email addresses or domains.
+	 * By verifying a domain, you demonstrate that you're the owner of that domain.
+	 * When you verify a domain, you allow Amazon SES to send email from any address on that domain.
 	 *
 	 * @param string $domain
 	 *
-	 * @return void
+	 * @return bool
 	 */
 	public function verifyDomainIdentity($domain)
 	{
@@ -176,18 +249,24 @@ class SES extends AWS
 			$this->sesClient->verifyDomainIdentity(['Domain' => $domain,]);
 			Yii::$app->session->setFlash('info', Yii::t('aws', 'Domain Identity {0} added correctly',$domain));
 
+			return true;
+
 		} catch (AwsException $e) {
 
 			Yii::$app->session->setFlash('error', $e->getMessage());
+
+			return false;
 		}
 	}
 
 	/**
-	 * Verify Email Identity to send from Amazon SES
+	 * Amazon SES can send email only from verified email addresses or domains.
+	 * By verifying an email address, you demonstrate that you're the owner of that address
+	 * and want to allow Amazon SES to send email from that address.
 	 *
 	 * @param string $email
 	 *
-	 * @return void
+	 * @return bool
 	 */
 	public function verifyEmailIdentity($email)
 	{
@@ -196,9 +275,13 @@ class SES extends AWS
 			$this->sesClient->verifyEmailIdentity(['EmailAddress' => $email]);
 			Yii::$app->session->setFlash('info', Yii::t('aws', 'Verification Identity Email was sent to email {0}',$email));
 
+			return true;
+
 		} catch (AwsException $e) {
 
 			Yii::$app->session->setFlash('error', $e->getMessage());
+
+			return false;
 		}
 	}
 }
