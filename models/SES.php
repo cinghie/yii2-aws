@@ -122,6 +122,62 @@ class SES extends AWS
 	}
 
 	/**
+	 * To retrieve a list of all email templates that are associated with your AWS account in the current AWS Region,
+	 * use the ListTemplates operation.
+	 *
+	 * @param $itemsNumber
+	 *
+	 * @return array|\Aws\Result
+	 */
+	public function listTemplate($itemsNumber)
+	{
+		try {
+
+			return $this->sesClient->listTemplates(['MaxItems' => $itemsNumber]);
+
+		} catch (AwsException $e) {
+
+			Yii::$app->session->setFlash('error', $e->getMessage());
+
+			return [];
+		}
+	}
+
+	/**
+	 * To change the content for a specific email template including the subject line,
+	 * HTML body, and plain text, use the UpdateTemplate operation.
+	 *
+	 * @param string $name
+	 * @param string $subject
+	 * @param string $html_body
+	 * @param string $plaintext_body
+	 *
+	 * @return bool
+	 */
+	public function updateTemplate($name, $subject, $html_body, $plaintext_body)
+	{
+		try {
+
+			$this->sesClient->updateTemplate([
+				'Template' => [
+					'HtmlPart' => $html_body,
+					'SubjectPart' => $subject,
+					'TemplateName' => $name,
+					'TextPart' => $plaintext_body,
+				],
+			]);
+
+			return true;
+
+		} catch (AwsException $e) {
+
+			Yii::$app->session->setFlash('error', $e->getMessage());
+
+			return false;
+		}
+	}
+
+	/**
 	 * To delete a verified email domain from the list of verified identities,
 	 * use the DeleteIdentity operation.
 	 *
