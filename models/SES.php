@@ -43,14 +43,14 @@ class SES extends AWS
 	 * To create a template to send personalized email messages, use the CreateTemplate operation.
 	 * The template can be used by any account authorized to send messages in the AWS Region to which the template is added.
 	 *
-	 * @param string $name
+	 * @param string $template_name
 	 * @param string $subject
 	 * @param string $html_body
 	 * @param string $plaintext_body
 	 *
 	 * @return bool
 	 */
-	public function createTemplate($name, $subject, $html_body, $plaintext_body)
+	public function createTemplate($template_name, $subject, $html_body, $plaintext_body)
 	{
 		try {
 
@@ -58,11 +58,11 @@ class SES extends AWS
 				'Template' => [
 					'HtmlPart' => $html_body,
 					'SubjectPart' => $subject,
-					'TemplateName' => $name,
+					'TemplateName' => $template_name,
 					'TextPart' => $plaintext_body,
 				],
 			]);
-			Yii::$app->session->setFlash('success', Yii::t('aws', 'Template {0} correctly created',$name));
+			Yii::$app->session->setFlash('success', Yii::t('aws', 'Template {0} correctly created',$template_name));
 
 			return true;
 
@@ -78,15 +78,15 @@ class SES extends AWS
 	 * To view the content for an existing email template including the subject line, HTML body, and plain text, use the GetTemplate operation.
 	 * Only TemplateName is required.
 	 *
-	 * @param $name
+	 * @param $template_name
 	 *
 	 * @return array|\Aws\Result
 	 */
-	public function getTemplate($name)
+	public function getTemplate($template_name)
 	{
 		try {
 
-			return $this->sesClient->getTemplate(['TemplateName' => $name]);
+			return $this->sesClient->getTemplate(['TemplateName' => $template_name]);
 
 		} catch (AwsException $e) {
 
@@ -100,15 +100,15 @@ class SES extends AWS
 	 * To remove a specific email template, use the DeleteTemplate operation.
 	 * All you need is the TemplateName.
 	 *
-	 * @param $name
+	 * @param $template_name
 	 *
 	 * @return bool
 	 */
-	public function deleteTemplate($name)
+	public function deleteTemplate($template_name)
 	{
 		try {
 
-			$this->sesClient->deleteTemplate(['TemplateName' => $name,]);
+			$this->sesClient->deleteTemplate(['TemplateName' => $template_name,]);
 			Yii::$app->session->setFlash('info', Yii::t('aws', 'Email Template deleted correctly'));
 
 			return true;
@@ -147,14 +147,14 @@ class SES extends AWS
 	 * To change the content for a specific email template including the subject line,
 	 * HTML body, and plain text, use the UpdateTemplate operation.
 	 *
-	 * @param string $name
+	 * @param string $template_name
 	 * @param string $subject
 	 * @param string $html_body
 	 * @param string $plaintext_body
 	 *
 	 * @return bool
 	 */
-	public function updateTemplate($name, $subject, $html_body, $plaintext_body)
+	public function updateTemplate($template_name, $subject, $html_body, $plaintext_body)
 	{
 		try {
 
@@ -162,9 +162,47 @@ class SES extends AWS
 				'Template' => [
 					'HtmlPart' => $html_body,
 					'SubjectPart' => $subject,
-					'TemplateName' => $name,
+					'TemplateName' => $template_name,
 					'TextPart' => $plaintext_body,
 				],
+			]);
+
+			return true;
+
+		} catch (AwsException $e) {
+
+			Yii::$app->session->setFlash('error', $e->getMessage());
+
+			return false;
+		}
+	}
+
+	/**
+	 * To use a template to send an email to recipients, use the SendTemplatedEmail operation.
+	 *
+	 * @param string $template_name
+	 * @param string $sender_email
+	 * @param string $recipeint_email
+	 * @param string $reply_email
+	 *
+	 * @return bool
+	 */
+	public function sendTemplatedEmail($template_name,$sender_email,$recipeint_email,$reply_email = null)
+	{
+		if($reply_email === null) {
+			$reply_email = $sender_email;
+		}
+
+		try {
+
+			$this->sesClient->sendTemplatedEmail([
+				'Destination' => [
+					'ToAddresses' => $recipeint_email,
+				],
+				'ReplyToAddresses' => [$reply_email],
+				'Source' => $sender_email,
+				'Template' => $template_name,
+				'TemplateData' => '{ }'
 			]);
 
 			return true;
@@ -278,7 +316,7 @@ class SES extends AWS
 	 */
 	public function testCreateTemplate()
 	{
-		$name = 'Template_Name';
+		$template_name = 'Template_Name';
 		$html_body = '<h1>AWS Amazon Simple Email Service Test Email</h1>' .
 			'<p>This email was sent with <a href="https://aws.amazon.com/ses/">' .
 			'Amazon SES</a> using the <a href="https://aws.amazon.com/sdk-for-php/">' .
@@ -286,7 +324,7 @@ class SES extends AWS
 		$subject = 'Amazon SES test (AWS SDK for PHP)';
 		$plaintext_body = 'This email was send with Amazon SES using the AWS SDK for PHP.';
 
-		$this->createTemplate($name, $subject, $html_body, $plaintext_body);
+		$this->createTemplate($template_name, $subject, $html_body, $plaintext_body);
 	}
 
 	/**
