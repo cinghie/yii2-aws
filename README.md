@@ -6,7 +6,13 @@
 ![Latest Commit](https://img.shields.io/github/last-commit/cinghie/yii2-aws.svg)
 [![Total Downloads](https://img.shields.io/packagist/dt/cinghie/yii2-aws.svg)](https://packagist.org/packages/cinghie/yii2-aws)
 
-Yii2 Amazon Web Services (AWS)
+Yii2 AWS (Amazon Web Services ) implementing AWS SDK
+
+Features
+-----------------
+
+ - Amazon S3
+ - Amazon SES
 
 Installation
 -----------------
