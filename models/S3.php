@@ -12,6 +12,8 @@
 
 namespace cinghie\aws\models;
 
+use Aws\Exception\AwsException;
+use Aws\Result;
 use Aws\Sdk;
 use Aws\S3\S3Client;
 use Yii;
@@ -20,6 +22,7 @@ use yii\base\Component;
 /**
  * Class AWS
  *
+ * @property Result $buckets
  * @property S3Client $s3Client
  *
  * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples.html
@@ -35,7 +38,7 @@ class S3 extends Component
 	public function __construct()
 	{
 		/** @var Sdk $sdk  */
-		$sdk = Yii::$app->aws;
+		$sdk = Yii::$app->aws->sdk;
 		$this->_s3Client = $sdk->createS3();
 
 		parent::__construct();
@@ -49,5 +52,39 @@ class S3 extends Component
 	public function getS3Client()
 	{
 		return $this->_s3Client;
+	}
+
+	/**
+	 * Get Buckets
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples-creating-buckets.html#list-buckets
+	 */
+	public function getBuckets()
+	{
+		return $this->_s3Client->listBuckets();
+	}
+
+	/**
+	 * Create S3 Bucket
+	 *
+	 * @param $name
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples-creating-buckets.html#create-a-bucket
+	 */
+	public function createBucket($name)
+	{
+		try {
+			$return = $this->_s3Client->createBucket([
+				'Bucket' => $name,
+			]);
+		} catch (AwsException $e) {
+			echo $e->getMessage();
+			echo "\n";
+		}
+
+		/** @var Result $return */
+		return $return;
 	}
 }

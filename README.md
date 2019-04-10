@@ -31,6 +31,7 @@ Add in your common configuration file:
 
 ```
 use cinghie\aws\components\AWS;
+use cinghie\aws\AWS as AWSModule;
 
 'components' => [
 
@@ -42,6 +43,14 @@ use cinghie\aws\components\AWS;
     	'version' => 'latest'
     ],
     
+],
+
+'modules' =>  [
+	
+	'aws' => [
+		'class' => AWSModule::class
+	],
+	
 ],
 
 ```

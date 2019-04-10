@@ -14,8 +14,8 @@ namespace cinghie\aws\models;
 
 use Aws\Exception\AwsException;
 use Aws\Result;
-use Aws\Ses\SesClient;
 use Aws\Sdk;
+use Aws\Ses\SesClient;
 use Yii;
 
 /**

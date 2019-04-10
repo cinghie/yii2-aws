@@ -29,9 +29,6 @@ class AWS extends Component
 	/** @var string $accessKey */
 	public $accessKey;
 
-	/** @var bool|array $debug */
-	public $debug;
-
 	/** @var string $region */
 	public $region;
 
@@ -83,7 +80,8 @@ class AWS extends Component
 				'key' => $this->accessKey,
 				'secret' => $this->secretKey,
 			),
-			'region' => $this->region
+			'region' => $this->region,
+			'version' => $this->version,
 		]);
 
 		parent::init();
