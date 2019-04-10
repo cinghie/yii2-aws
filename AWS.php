@@ -18,39 +18,9 @@ use yii\base\Module;
 
 /**
  * Class AWS
- *
- * @package cinghie\aws
  */
 class AWS extends Module
 {
-	/**
-	 * @var string Amazon API Access Key
-	 */
-	public $accessKey = '';
-
-	/** @var bool|array $debug */
-	public $debug;
-
-	/**
-	 * @var string Amazon API Region
-	 */
-	public $profile = '';
-
-	/**
-	 * @var string Amazon API Region
-	 */
-	public $region = 'eu-west-1';
-
-	/**
-	 * @var string Amazon API Secret Key
-	 */
-	public $secretKey = '';
-
-	/**
-	 * @var string Amazon API Version
-	 */
-	public $version = 'latest';
-
 	/**
 	 * @inheritdoc
 	 *
@@ -58,8 +28,9 @@ class AWS extends Module
 	 */
 	public function init()
 	{
-		parent::init();
 		$this->registerTranslations();
+
+		parent::init();
 	}
 
 	/**

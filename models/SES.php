@@ -12,31 +12,44 @@
 
 namespace cinghie\aws\models;
 
-use Yii;
 use Aws\Exception\AwsException;
+use Aws\Result;
 use Aws\Ses\SesClient;
-use yii\base\InvalidConfigException;
+use Aws\Sdk;
+use Yii;
 
 /**
  * Class SES
  *
- * @package cinghie\aws\models
+ * @property SesClient $sesClient
+ *
  * @see [SES Developer Guide](https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-examples.html)
  */
 class SES extends AWS
 {
 	/** @var SesClient $sesClient */
-	public $sesClient;
+	private $_sesClient;
 
 	/**
 	 * SES constructor
-	 *
-	 * @throws InvalidConfigException
 	 */
 	public function __construct()
 	{
+		/** @var Sdk $sdk  */
+		$sdk = Yii::$app->aws;
+		$this->_sesClient = $sdk->createSes();
+
 		parent::__construct();
-		$this->sesClient = $this->getSDK()->createSes();
+	}
+
+	/**
+	 * Get SES Client
+	 *
+	 * @return SesClient
+	 */
+	public function getSESClient()
+	{
+		return $this->_sesClient;
 	}
 
 	/**
@@ -54,7 +67,7 @@ class SES extends AWS
 	{
 		try {
 
-			$this->sesClient->createTemplate([
+			$this->_sesClient->createTemplate([
 				'Template' => [
 					'HtmlPart' => $html_body,
 					'SubjectPart' => $subject,
@@ -80,13 +93,13 @@ class SES extends AWS
 	 *
 	 * @param $template_name
 	 *
-	 * @return array|\Aws\Result
+	 * @return array|Result
 	 */
 	public function getTemplate($template_name)
 	{
 		try {
 
-			return $this->sesClient->getTemplate(['TemplateName' => $template_name]);
+			return $this->_sesClient->getTemplate(['TemplateName' => $template_name]);
 
 		} catch (AwsException $e) {
 
@@ -108,7 +121,7 @@ class SES extends AWS
 	{
 		try {
 
-			$this->sesClient->deleteTemplate(['TemplateName' => $template_name,]);
+			$this->_sesClient->deleteTemplate(['TemplateName' => $template_name,]);
 			Yii::$app->session->setFlash('info', Yii::t('aws', 'Email Template deleted correctly'));
 
 			return true;
@@ -127,13 +140,13 @@ class SES extends AWS
 	 *
 	 * @param $itemsNumber
 	 *
-	 * @return array|\Aws\Result
+	 * @return array|Result
 	 */
 	public function listTemplate($itemsNumber)
 	{
 		try {
 
-			return $this->sesClient->listTemplates(['MaxItems' => $itemsNumber]);
+			return $this->_sesClient->listTemplates(['MaxItems' => $itemsNumber]);
 
 		} catch (AwsException $e) {
 
@@ -158,7 +171,7 @@ class SES extends AWS
 	{
 		try {
 
-			$this->sesClient->updateTemplate([
+			$this->_sesClient->updateTemplate([
 				'Template' => [
 					'HtmlPart' => $html_body,
 					'SubjectPart' => $subject,
@@ -195,7 +208,7 @@ class SES extends AWS
 
 		try {
 
-			$this->sesClient->sendTemplatedEmail([
+			$this->_sesClient->sendTemplatedEmail([
 				'Destination' => [
 					'ToAddresses' => $recipeint_email,
 				],
@@ -227,7 +240,7 @@ class SES extends AWS
 	{
 		try {
 
-			$this->sesClient->deleteIdentity(['Identity' => $domain]);
+			$this->_sesClient->deleteIdentity(['Identity' => $domain]);
 			Yii::$app->session->setFlash('info', Yii::t('aws', 'Domain {0} deleted from the list of identities',$domain));
 
 			return true;
@@ -252,7 +265,7 @@ class SES extends AWS
 	{
 		try {
 
-			$this->sesClient->deleteIdentity(['Identity' => $email]);
+			$this->_sesClient->deleteIdentity(['Identity' => $email]);
 			Yii::$app->session->setFlash('info', Yii::t('aws', 'Email {0} deleted from the list of identities',$email));
 
 			return true;
@@ -275,7 +288,7 @@ class SES extends AWS
 	{
 		try {
 
-			$result = $this->sesClient->listIdentities(['IdentityType' => 'Domain',]);
+			$result = $this->_sesClient->listIdentities(['IdentityType' => 'Domain',]);
 
 			return $result['Identities'];
 
@@ -297,7 +310,7 @@ class SES extends AWS
 	{
 		try {
 
-			$result = $this->sesClient->listIdentities(['IdentityType' => 'EmailAddress',]);
+			$result = $this->_sesClient->listIdentities(['IdentityType' => 'EmailAddress',]);
 
 			return $result['Identities'];
 
@@ -340,7 +353,7 @@ class SES extends AWS
 	{
 		try {
 
-			$this->sesClient->verifyDomainIdentity(['Domain' => $domain,]);
+			$this->_sesClient->verifyDomainIdentity(['Domain' => $domain,]);
 			Yii::$app->session->setFlash('info', Yii::t('aws', 'Domain Identity {0} added correctly',$domain));
 
 			return true;
@@ -366,7 +379,7 @@ class SES extends AWS
 	{
 		try {
 			
-			$this->sesClient->verifyEmailIdentity(['EmailAddress' => $email]);
+			$this->_sesClient->verifyEmailIdentity(['EmailAddress' => $email]);
 			Yii::$app->session->setFlash('info', Yii::t('aws', 'Verification Identity Email was sent to email {0}',$email));
 
 			return true;

@@ -24,3 +24,24 @@ or add
 ```
 "cinghie/yii2-aws": "*"
 ```
+
+## Configuration
+
+Add in your common configuration file:
+
+```
+use cinghie\aws\components\AWS;
+
+'components' => [
+
+    'aws' => [
+    	'class' => AWS::class,
+    	'accessKey' => 'AMAZON_ACCESS_KEY',
+    	'secretKey' => 'AMAZON_SECRET_KEY',
+    	'region' => 'eu-west-1',
+    	'version' => 'latest'
+    ],
+    
+],
+
+```
