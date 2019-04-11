@@ -36,7 +36,7 @@ class SES extends AWS
 	public function __construct()
 	{
 		/** @var Sdk $sdk  */
-		$sdk = Yii::$app->aws;
+		$sdk = Yii::$app->aws->sdk;
 		$this->_sesClient = $sdk->createSes();
 
 		parent::__construct();
