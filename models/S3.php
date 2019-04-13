@@ -17,7 +17,7 @@ use Aws\Result;
 use Aws\Sdk;
 use Aws\S3\S3Client;
 use Yii;
-use yii\base\Component;
+use yii\base\Model;
 
 /**
  * Class AWS
@@ -27,7 +27,7 @@ use yii\base\Component;
  *
  * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples.html
  */
-class S3 extends Component
+class S3 extends Model
 {
 	/** @var SesClient $sesClient */
 	private $_s3Client;

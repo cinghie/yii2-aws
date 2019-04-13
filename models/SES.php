@@ -17,6 +17,7 @@ use Aws\Result;
 use Aws\Sdk;
 use Aws\Ses\SesClient;
 use Yii;
+use yii\base\Model;
 
 /**
  * Class SES
@@ -25,7 +26,7 @@ use Yii;
  *
  * @see [SES Developer Guide](https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-examples.html)
  */
-class SES extends AWS
+class SES extends Model
 {
 	/** @var SesClient $sesClient */
 	private $_sesClient;
@@ -47,7 +48,7 @@ class SES extends AWS
 	 *
 	 * @return SesClient
 	 */
-	public function getSESClient()
+	public function getSesClient()
 	{
 		return $this->_sesClient;
 	}

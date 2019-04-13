@@ -21,6 +21,9 @@ use yii\base\Module;
  */
 class AWS extends Module
 {
+	// AWS Rules
+	public $awsRoles = ['admin'];
+
 	/**
 	 * @inheritdoc
 	 *

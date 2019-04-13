@@ -54,7 +54,8 @@ use cinghie\aws\AWS as AWSModule;
 'modules' =>  [
 	
 	'aws' => [
-		'class' => AWSModule::class
+		'class' => AWSModule::class,
+		'awsRoles' => ['admin'],
 	],
 	
 ],
