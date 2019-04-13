@@ -1,7 +1,8 @@
 <?php
 
 /**
- * @var $s3Client cinghie\aws\models\S3
+ * @var $buckets array
+ * @var $s3Client Aws\S3\S3Client
  * @var $this yii\web\View
  */
 
@@ -9,4 +10,6 @@
 $this->title = Yii::t('aws', 'Amazon S3');
 $this->params['breadcrumbs'][] = $this->title;
 
-var_dump($s3Client);
+echo '<pre>'; var_dump($buckets); echo '</pre>';
+
+echo '<pre>'; var_dump($s3Client); echo '</pre>';

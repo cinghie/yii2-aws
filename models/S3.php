@@ -62,7 +62,15 @@ class S3 extends Model
 	 */
 	public function getBuckets()
 	{
-		return $this->_s3Client->listBuckets();
+		try {
+			$buckets = $this->_s3Client->listBuckets();
+		} catch (S3Exception $e) {
+			echo $e->getMessage();
+			echo "\n";
+		}
+
+		/** @var Result $buckets */
+		return $buckets;
 	}
 
 	/**

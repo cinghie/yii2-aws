@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @var $sesClient cinghie\aws\models\SES
+ * @var $sesClient Aws\Ses\SesClient
  * @var $this yii\web\View
  */
 
@@ -9,4 +9,4 @@
 $this->title = Yii::t('aws', 'Amazon SES');
 $this->params['breadcrumbs'][] = $this->title;
 
-var_dump($sesClient);
+echo '<pre>'; var_dump($sesClient); echo '</pre>';

@@ -51,9 +51,11 @@ class S3Controller extends Controller
     {
 	    $s3 = new S3();
 	    $s3Client = $s3->getS3Client();
+	    $buckets  = $s3->getBuckets();
 
         return $this->render('index',[
-        	's3Client' => $s3Client
+        	's3Client' => $s3Client,
+	        'buckets' => $buckets
         ]);
     }
 }
