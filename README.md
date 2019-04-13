@@ -51,13 +51,13 @@ use cinghie\aws\AWS as AWSModule;
     
 ],
 
-'modules' =>  [
-	
+'modules' => [
+
 	'aws' => [
 		'class' => AWSModule::class,
 		'awsRoles' => ['admin'],
 	],
-	
+
 ],
 
 ```
