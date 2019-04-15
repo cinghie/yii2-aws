@@ -24,7 +24,7 @@ use yii\base\Model;
  *
  * @property SesClient $sesClient
  *
- * @see [SES Developer Guide](https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-examples.html)
+ * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-examples.html
  */
 class SES extends Model
 {
