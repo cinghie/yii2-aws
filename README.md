@@ -11,9 +11,12 @@ Yii2 AWS (Amazon Web Services) implementing Amazon AWS SDK for PHP
 Features
 -----------------
 
- - Amazon S3: https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples.html
- - Amazon SES: https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-examples.html
- - Amazon SES Deliverability Dashboard: https://docs.aws.amazon.com/en_us/ses/latest/DeveloperGuide/bouncecomplaintdashboard.html
+ - Amazon S3:  
+ https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples.html
+ - Amazon SES:  
+ https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-examples.html
+ - Amazon SES Deliverability Dashboard:  
+ https://docs.aws.amazon.com/en_us/ses/latest/DeveloperGuide/bouncecomplaintdashboard.html
 
 Installation
 -----------------
