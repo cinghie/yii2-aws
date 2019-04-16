@@ -28,7 +28,9 @@ use yii\base\Model;
  */
 class SES extends Model
 {
-	/** @var SesClient $sesClient */
+	/**
+	 * @var SesClient
+	 */
 	private $_sesClient;
 
 	/**
@@ -54,6 +56,146 @@ class SES extends Model
 	}
 
 	/**
+	 * Amazon SES can send email only from verified email addresses or domains.
+	 * By verifying an email address, you demonstrate that you're the owner of that address
+	 * and want to allow Amazon SES to send email from that address.
+	 *
+	 * @param string $email
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-verify.html#verifying-email-addresses
+	 */
+	public function verifyEmailIdentity($email)
+	{
+		try {
+			$result = $this->_sesClient->verifyEmailIdentity([
+				'EmailAddress' => $email
+			]);
+			Yii::$app->session->setFlash('info', Yii::t('aws', 'Verification Identity Email was sent to email {0}',$email));
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * Amazon SES can send email only from verified email addresses or domains.
+	 * By verifying a domain, you demonstrate that you're the owner of that domain.
+	 * When you verify a domain, you allow Amazon SES to send email from any address on that domain.
+	 *
+	 * @param string $domain
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-verify.html#verify-an-email-domain
+	 */
+	public function verifyDomainIdentity($domain)
+	{
+		try {
+			$result = $this->_sesClient->verifyDomainIdentity([
+				'Domain' => $domain
+			]);
+			Yii::$app->session->setFlash('info', Yii::t('aws', 'Domain Identity {0} added correctly',$domain));
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * To retrieve a list of email addresses submitted in the current AWS Region,
+	 * regardless of verification status, use the ListIdentities operation.
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-verify.html#list-email-addresses
+	 */
+	public function listIdentities()
+	{
+		try {
+			$result = $this->_sesClient->listIdentities([
+				'IdentityType' => 'EmailAddress'
+			]);
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * To retrieve a list of email domains submitted in the current AWS Region,
+	 * regardless of verification status use the ListIdentities operation.
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-verify.html#list-email-domains
+	 */
+	public function listDomains()
+	{
+		try {
+			$result = $this->_sesClient->listIdentities([
+				'IdentityType' => 'Domain'
+			]);
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * To delete a verified email address from the list of identities,
+	 * use the DeleteIdentity operation.
+	 *
+	 * @param string $email
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-verify.html#delete-an-email-address
+	 */
+	public function deleteEmail($email)
+	{
+		try {
+			$result = $this->_sesClient->deleteIdentity([
+				'Identity' => $email
+			]);
+			Yii::$app->session->setFlash('info', Yii::t('aws', 'Email {0} deleted from the list of identities',$email));
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * To delete a verified email domain from the list of verified identities,
+	 * use the DeleteIdentity operation.
+	 *
+	 * @param string $domain
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-verify.html#delete-an-email-domain
+	 */
+	public function deleteDomain($domain)
+	{
+		try {
+			$result = $this->_sesClient->deleteIdentity([
+				'Identity' => $domain
+			]);
+			Yii::$app->session->setFlash('info', Yii::t('aws', 'Domain {0} deleted from the list of identities',$domain));
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
 	 * To create a template to send personalized email messages, use the CreateTemplate operation.
 	 * The template can be used by any account authorized to send messages in the AWS Region to which the template is added.
 	 *
@@ -62,13 +204,13 @@ class SES extends Model
 	 * @param string $html_body
 	 * @param string $plaintext_body
 	 *
-	 * @return bool
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-verify.html#verifying-email-addresses
 	 */
 	public function createTemplate($template_name, $subject, $html_body, $plaintext_body)
 	{
 		try {
-
-			$this->_sesClient->createTemplate([
+			$result = $this->_sesClient->createTemplate([
 				'Template' => [
 					'HtmlPart' => $html_body,
 					'SubjectPart' => $subject,
@@ -77,84 +219,75 @@ class SES extends Model
 				],
 			]);
 			Yii::$app->session->setFlash('success', Yii::t('aws', 'Template {0} correctly created',$template_name));
-
-			return true;
-
 		} catch (AwsException $e) {
-
 			Yii::$app->session->setFlash('error', $e->getMessage());
-
-			return false;
 		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * Demo Create Template
+	 *
+	 * @return Result
+	 */
+	public function createDemoTemplate()
+	{
+		$template_name = 'Template_Name';
+		$html_body = '<h1>AWS Amazon Simple Email Service Test Email</h1>' .
+			'<p>This email was sent with <a href="https://aws.amazon.com/ses/">' .
+			'Amazon SES</a> using the <a href="https://aws.amazon.com/sdk-for-php/">' .
+			'AWS SDK for PHP</a>.</p>';
+		$subject = 'Amazon SES test (AWS SDK for PHP)';
+		$plaintext_body = 'This email was send with Amazon SES using the AWS SDK for PHP.';
+
+		return $this->createTemplate($template_name, $subject, $html_body, $plaintext_body);
 	}
 
 	/**
 	 * To view the content for an existing email template including the subject line, HTML body, and plain text, use the GetTemplate operation.
 	 * Only TemplateName is required.
 	 *
-	 * @param $template_name
+	 * @param string $template_name
 	 *
-	 * @return array|Result
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-verify.html#verify-an-email-domain
 	 */
 	public function getTemplate($template_name)
 	{
 		try {
-
-			return $this->_sesClient->getTemplate(['TemplateName' => $template_name]);
-
+			$result = $this->_sesClient->getTemplate([
+				'TemplateName' => $template_name
+			]);
 		} catch (AwsException $e) {
-
 			Yii::$app->session->setFlash('error', $e->getMessage());
-
-			return [];
 		}
-	}
 
-	/**
-	 * To remove a specific email template, use the DeleteTemplate operation.
-	 * All you need is the TemplateName.
-	 *
-	 * @param $template_name
-	 *
-	 * @return bool
-	 */
-	public function deleteTemplate($template_name)
-	{
-		try {
-
-			$this->_sesClient->deleteTemplate(['TemplateName' => $template_name,]);
-			Yii::$app->session->setFlash('info', Yii::t('aws', 'Email Template deleted correctly'));
-
-			return true;
-
-		} catch (AwsException $e) {
-
-			Yii::$app->session->setFlash('error', $e->getMessage());
-
-			return false;
-		}
+		/** @var Result $result */
+		return $result;
 	}
 
 	/**
 	 * To retrieve a list of all email templates that are associated with your AWS account in the current AWS Region,
 	 * use the ListTemplates operation.
 	 *
-	 * @param $itemsNumber
+	 * @param integer $itemsNumber
 	 *
-	 * @return array|Result
+	 * @return Result
 	 */
-	public function listTemplate($itemsNumber)
+	public function listTemplates($itemsNumber = 25)
 	{
 		try {
-
-			return $this->_sesClient->listTemplates(['MaxItems' => $itemsNumber]);
-
+			$result = $this->_sesClient->listTemplates([
+				'MaxItems' => $itemsNumber
+			]);
 		} catch (AwsException $e) {
-
 			Yii::$app->session->setFlash('error', $e->getMessage());
-
-			return [];
 		}
+
+		/** @var Result $result */
+		return $result;
 	}
 
 	/**
@@ -166,13 +299,12 @@ class SES extends Model
 	 * @param string $html_body
 	 * @param string $plaintext_body
 	 *
-	 * @return bool
+	 * @return Result
 	 */
 	public function updateTemplate($template_name, $subject, $html_body, $plaintext_body)
 	{
 		try {
-
-			$this->_sesClient->updateTemplate([
+			$result = $this->_sesClient->updateTemplate([
 				'Template' => [
 					'HtmlPart' => $html_body,
 					'SubjectPart' => $subject,
@@ -180,15 +312,54 @@ class SES extends Model
 					'TextPart' => $plaintext_body,
 				],
 			]);
-
-			return true;
-
 		} catch (AwsException $e) {
-
 			Yii::$app->session->setFlash('error', $e->getMessage());
-
-			return false;
 		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * Demo Update Template
+	 *
+	 * @return Result
+	 */
+	public function updateDemoTemplate()
+	{
+		$template_name = 'Template_Name';
+		$html_body = '<h1>AWS Amazon Simple Email Service Test Email Updated!</h1>' .
+			'<p>This email was sent with <a href="https://aws.amazon.com/ses/">' .
+			'Amazon SES</a> using the <a href="https://aws.amazon.com/sdk-for-php/">' .
+			'AWS SDK for PHP</a>.</p>';
+		$subject = 'Amazon SES test (AWS SDK for PHP)';
+		$plaintext_body = 'This email was send with Amazon SES using the AWS SDK for PHP.';
+
+		return $this->updateTemplate($template_name, $subject, $html_body, $plaintext_body);
+	}
+
+	/**
+	 * To remove a specific email template, use the DeleteTemplate operation.
+	 * All you need is the TemplateName.
+	 *
+	 * @param string $template_name
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-verify.html#verify-an-email-domain
+	 */
+	public function deleteTemplate($template_name)
+	{
+		try {
+			$result = $this->_sesClient->deleteTemplate([
+				'TemplateName' => $template_name
+			]);
+			Yii::$app->session->setFlash('info', Yii::t('aws', 'Email Template deleted correctly'));
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
 	}
 
 	/**
@@ -199,17 +370,17 @@ class SES extends Model
 	 * @param string $recipeint_email
 	 * @param string $reply_email
 	 *
-	 * @return bool
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-template.html#send-an-email-with-a-template
 	 */
-	public function sendTemplatedEmail($template_name,$sender_email,$recipeint_email,$reply_email = null)
+	public function sendTemplatedEmail($template_name, $sender_email, $recipeint_email, $reply_email = null)
 	{
 		if($reply_email === null) {
 			$reply_email = $sender_email;
 		}
 
 		try {
-
-			$this->_sesClient->sendTemplatedEmail([
+			$result = $this->_sesClient->sendTemplatedEmail([
 				'Destination' => [
 					'ToAddresses' => $recipeint_email,
 				],
@@ -218,178 +389,11 @@ class SES extends Model
 				'Template' => $template_name,
 				'TemplateData' => '{ }'
 			]);
-
-			return true;
-
 		} catch (AwsException $e) {
-
 			Yii::$app->session->setFlash('error', $e->getMessage());
-
-			return false;
 		}
-	}
 
-	/**
-	 * To delete a verified email domain from the list of verified identities,
-	 * use the DeleteIdentity operation.
-	 *
-	 * @param string $domain
-	 *
-	 * @return bool
-	 */
-	public function deleteDomain($domain)
-	{
-		try {
-
-			$this->_sesClient->deleteIdentity(['Identity' => $domain]);
-			Yii::$app->session->setFlash('info', Yii::t('aws', 'Domain {0} deleted from the list of identities',$domain));
-
-			return true;
-
-		} catch (AwsException $e) {
-
-			Yii::$app->session->setFlash('error', $e->getMessage());
-
-			return false;
-		}
-	}
-
-	/**
-	 * To delete a verified email address from the list of identities,
-	 * use the DeleteIdentity operation.
-	 *
-	 * @param string $email
-	 *
-	 * @return bool
-	 */
-	public function deleteEmail($email)
-	{
-		try {
-
-			$this->_sesClient->deleteIdentity(['Identity' => $email]);
-			Yii::$app->session->setFlash('info', Yii::t('aws', 'Email {0} deleted from the list of identities',$email));
-
-			return true;
-
-		} catch (AwsException $e) {
-
-			Yii::$app->session->setFlash('error', $e->getMessage());
-
-			return false;
-		}
-	}
-
-	/**
-	 * To retrieve a list of email domains submitted in the current AWS Region,
-	 * regardless of verification status use the ListIdentities operation.
-	 *
-	 * @return array
-	 */
-	public function listDomains()
-	{
-		try {
-
-			$result = $this->_sesClient->listIdentities(['IdentityType' => 'Domain',]);
-
-			return $result['Identities'];
-
-		} catch (AwsException $e) {
-
-			Yii::$app->session->setFlash('error', $e->getMessage());
-
-			return [];
-		}
-	}
-
-	/**
-	 * To retrieve a list of email addresses submitted in the current AWS Region,
-	 * regardless of verification status, use the ListIdentities operation.
-	 *
-	 * @return array
-	 */
-	public function listIdentities()
-	{
-		try {
-
-			$result = $this->_sesClient->listIdentities(['IdentityType' => 'EmailAddress',]);
-
-			return $result['Identities'];
-
-		} catch (AwsException $e) {
-
-			Yii::$app->session->setFlash('error', $e->getMessage());
-
-			return [];
-		}
-	}
-
-	/**
-	 * Test CreateTemplate operation.
-	 *
-	 * @return void
-	 */
-	public function testCreateTemplate()
-	{
-		$template_name = 'Template_Name';
-		$html_body = '<h1>AWS Amazon Simple Email Service Test Email</h1>' .
-			'<p>This email was sent with <a href="https://aws.amazon.com/ses/">' .
-			'Amazon SES</a> using the <a href="https://aws.amazon.com/sdk-for-php/">' .
-			'AWS SDK for PHP</a>.</p>';
-		$subject = 'Amazon SES test (AWS SDK for PHP)';
-		$plaintext_body = 'This email was send with Amazon SES using the AWS SDK for PHP.';
-
-		$this->createTemplate($template_name, $subject, $html_body, $plaintext_body);
-	}
-
-	/**
-	 * Amazon SES can send email only from verified email addresses or domains.
-	 * By verifying a domain, you demonstrate that you're the owner of that domain.
-	 * When you verify a domain, you allow Amazon SES to send email from any address on that domain.
-	 *
-	 * @param string $domain
-	 *
-	 * @return bool
-	 */
-	public function verifyDomainIdentity($domain)
-	{
-		try {
-
-			$this->_sesClient->verifyDomainIdentity(['Domain' => $domain,]);
-			Yii::$app->session->setFlash('info', Yii::t('aws', 'Domain Identity {0} added correctly',$domain));
-
-			return true;
-
-		} catch (AwsException $e) {
-
-			Yii::$app->session->setFlash('error', $e->getMessage());
-
-			return false;
-		}
-	}
-
-	/**
-	 * Amazon SES can send email only from verified email addresses or domains.
-	 * By verifying an email address, you demonstrate that you're the owner of that address
-	 * and want to allow Amazon SES to send email from that address.
-	 *
-	 * @param string $email
-	 *
-	 * @return bool
-	 */
-	public function verifyEmailIdentity($email)
-	{
-		try {
-			
-			$this->_sesClient->verifyEmailIdentity(['EmailAddress' => $email]);
-			Yii::$app->session->setFlash('info', Yii::t('aws', 'Verification Identity Email was sent to email {0}',$email));
-
-			return true;
-
-		} catch (AwsException $e) {
-
-			Yii::$app->session->setFlash('error', $e->getMessage());
-
-			return false;
-		}
+		/** @var Result $result */
+		return $result;
 	}
 }

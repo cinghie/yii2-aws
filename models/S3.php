@@ -29,7 +29,9 @@ use yii\base\Model;
  */
 class S3 extends Model
 {
-	/** @var SesClient $sesClient */
+	/**
+	 * @var S3Client
+	 */
 	private $_s3Client;
 
 	/**
@@ -65,8 +67,7 @@ class S3 extends Model
 		try {
 			$buckets = $this->_s3Client->listBuckets();
 		} catch (S3Exception $e) {
-			echo $e->getMessage();
-			echo "\n";
+			Yii::$app->session->setFlash('error', $e->getMessage());
 		}
 
 		/** @var Result $buckets */
@@ -76,23 +77,48 @@ class S3 extends Model
 	/**
 	 * Create S3 Bucket
 	 *
-	 * @param $name
+	 * @param string $bucketName
 	 *
 	 * @return Result
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples-creating-buckets.html#create-a-bucket
 	 */
-	public function createBucket($name)
+	public function createBucket($bucketName)
 	{
 		try {
-			$return = $this->_s3Client->createBucket([
-				'Bucket' => $name,
+			$result = $this->_s3Client->createBucket([
+				'Bucket' => $bucketName,
 			]);
 		} catch (AwsException $e) {
-			echo $e->getMessage();
-			echo "\n";
+			Yii::$app->session->setFlash('error', $e->getMessage());
 		}
 
-		/** @var Result $return */
-		return $return;
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * Put Object in Bucket
+	 *
+	 * @param string $bucketName
+	 * @param string $key
+	 * @param string $filePath
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples-creating-buckets.html#put-an-object-in-a-bucket
+	 */
+	public function putObjectInBucket($bucketName, $key, $filePath)
+	{
+		try {
+			$result = $this->_s3Client->putObject([
+				'Bucket' => $bucketName,
+				'Key' => $key,
+				'SourceFile' => $filePath,
+			]);
+		} catch (S3Exception $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
 	}
 }
