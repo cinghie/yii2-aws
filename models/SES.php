@@ -396,4 +396,93 @@ class SES extends Model
 		/** @var Result $result */
 		return $result;
 	}
+
+	/**
+	 * To allow or block emails from a specific IP address, use the CreateReceiptFilter operation.
+	 * Provide the IP address or range of addresses and a unique name to identify this filter.
+	 *
+	 * @param string $filter_name
+	 * @param string $ip_address_range
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-filters.html#create-an-email-filter
+	 */
+	public function createEmailFilter($filter_name, $ip_address_range)
+	{
+		try {
+			$result = $this->_sesClient->createReceiptFilter([
+				'Filter' => [
+					'IpFilter' => [
+						'Cidr' => $ip_address_range,
+						'Policy' => 'Block|Allow',
+					],
+					'Name' => $filter_name,
+				],
+			]);
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * Create Demo Filter
+	 *
+	 * @return Result
+	 */
+	public function createDemoEmailFilter()
+	{
+		$filter_name = 'FilterName';
+		$ip_address_range = '10.0.0.1/24';
+
+		return $this->createEmailFilter($filter_name, $ip_address_range);
+	}
+
+	/**
+	 * To list the IP address filters associated with your AWS account in the current AWS Region,
+	 * use the ListReceiptFilters operation.
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-filters.html#list-all-email-filters
+	 */
+	public function listEmailFilters()
+	{
+		try {
+			$result = $this->_sesClient->listReceiptFilters();
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * To remove an existing filter for a specific IP address use the DeleteReceiptFilter operation.
+	 * Provide the unique filter name to identify the receipt filter to delete.
+	 *
+	 * If you need to change the range of addresses that are filtered,
+	 * you can delete a receipt filter and create a new one.
+	 *
+	 * @param string $filter_name
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-filters.html#delete-an-email-filter
+	 */
+	public function deleteEmailFilter($filter_name)
+	{
+		try {
+			$result = $this->_sesClient->deleteReceiptFilter([
+				'FilterName' => $filter_name,
+
+			]);
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
 }
