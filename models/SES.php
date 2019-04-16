@@ -485,4 +485,250 @@ class SES extends Model
 		/** @var Result $result */
 		return $result;
 	}
+
+	/**
+	 * A receipt rule set contains a collection of receipt rules.
+	 * You must have at least one receipt rule set associated with your account before you can create a receipt rule.
+	 *
+	 * @param string $name
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-rules.html#create-a-receipt-rule-set
+	 */
+	public function createReceiptRuleSet($name)
+	{
+		try {
+			$result = $this->_sesClient->createReceiptRuleSet([
+				'RuleSetName' => $name,
+			]);
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * Control your incoming email by adding a receipt rule to an existing receipt rule set.
+	 * This example shows you how to create a receipt rule that sends incoming messages to an Amazon S3 bucket,
+	 * but you can also send messages to Amazon SNS and AWS Lambda.
+	 *
+	 * @param string $rule_name
+	 * @param string $rule_set_name
+	 * @param string $s3_bucket
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-rules.html#create-a-receipt-rule
+	 */
+	public function createReceiptRule($rule_name, $rule_set_name, $s3_bucket)
+	{
+		try {
+			$result = $this->_sesClient->createReceiptRule([
+				'Rule' => [
+					'Actions' => [
+						[
+							'S3Action' => [
+								'BucketName' => $s3_bucket,
+							],
+						],
+					],
+					'Name' => $rule_name,
+					'ScanEnabled' => true,
+					'TlsPolicy' => 'Optional',
+					'Recipients' => ['<string>']
+                ],
+                'RuleSetName' =>  $rule_set_name,
+			]);
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * Create Demo Receipt Rule
+	 *
+	 * @return Result
+	 */
+	public function createDemoReceiptRule()
+	{
+		$rule_name = 'Rule_Name';
+		$rule_set_name = 'Rule_Set_Name';
+		$s3_bucket = 'Bucket_Name';
+
+		$this->createReceiptRuleSet($rule_set_name);
+
+		return $this->createReceiptRule($rule_name,$rule_set_name,$s3_bucket);
+	}
+
+	/**
+	 * Once per second, return the details of the specified receipt rule set.
+	 * To use the DescribeReceiptRuleSet operation, provide the RuleSetName.
+	 *
+	 * @param string $name
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-rules.html#describe-a-receipt-rule-set
+	 */
+	public function describeReceiptRuleSet($name)
+	{
+		try {
+			$result = $this->_sesClient->describeReceiptRuleSet([
+				'RuleSetName' => $name,
+			]);
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * Return the details of a specified receipt rule.
+	 * To use the DescribeReceiptRule operation, provide the RuleName and RuleSetName.
+	 *
+	 * @param string $rule_name
+	 * @param string $rule_set_name
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-rules.html#describe-a-receipt-rule
+	 */
+	public function describeReceiptRule($rule_name,$rule_set_name)
+	{
+		try {
+			$result = $this->_sesClient->describeReceiptRule([
+				'RuleName' => $rule_name,
+				'RuleSetName' => $rule_set_name,
+			]);
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * To list the receipt rule sets that exist under your AWS account in the current AWS Region,
+	 * use the ListReceiptRuleSets operation.
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-rules.html#list-all-receipt-rule-sets
+	 */
+	public function listReceiptRuleSets()
+	{
+		try {
+			$result = $this->_sesClient->listReceiptRuleSets();
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * This example shows you how to update a receipt rule that sends incoming messages to an AWS Lambda function,
+	 * but you can also send messages to Amazon SNS and Amazon S3.
+	 *
+	 * @param string $rule_name
+	 * @param string $rule_set_name
+	 * @param string $lambda_arn
+	 * @param string $sns_topic_arn
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-rules.html#update-a-receipt-rule
+	 */
+	public function updateReceiptRule($rule_name, $rule_set_name, $lambda_arn, $sns_topic_arn)
+	{
+		try {
+			$result = $this->_sesClient->updateReceiptRule([
+				'Rule' => [
+					'Actions' => [
+						'LambdaAction' => [
+							'FunctionArn' => $lambda_arn,
+							'TopicArn' => $sns_topic_arn,
+						],
+					],
+					'Enabled' => true,
+					'Name' => $rule_name,
+					'ScanEnabled' => false,
+					'TlsPolicy' => 'Require',
+				],
+				'RuleSetName' => $rule_set_name,
+			]);
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * Update Demo Receipt Rule
+	 *
+	 * @return Result
+	 */
+	public function updateDemoReceiptRule()
+	{
+		$rule_name = 'Rule_Name';
+		$rule_set_name = 'Rule_Set_Name';
+		$lambda_arn = 'Amazon Resource Name (ARN) of the AWS Lambda function';
+		$sns_topic_arn = 'Amazon Resource Name (ARN) of the Amazon SNS topic';
+
+		return $this->updateReceiptRule($rule_name,$rule_set_name,$lambda_arn,$sns_topic_arn);
+	}
+
+	/**
+	 * Remove a specified receipt rule set that isn't currently disabled.
+	 * This also deletes all of the receipt rules it contains.
+	 * To delete a receipt rule set, provide the RuleSetName to the DeleteReceiptRuleSet operation.
+	 *
+	 * @param string $name
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-rules.html#delete-a-receipt-rule-set
+	 */
+	public function deleteReceiptRuleSet($name)
+	{
+		try {
+			$result = $this->_sesClient->deleteReceiptRuleSet([
+				'RuleSetName' => $name,
+			]);
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * To delete a specified receipt rule, provide the RuleName and RuleSetName to the DeleteReceiptRule operation.
+	 *
+	 * @param string $rule_name
+	 * @param string $rule_set_name
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-rules.html#delete-a-receipt-rule
+	 */
+	public function deleteReceiptRule($rule_name,$rule_set_name)
+	{
+		try {
+			$result = $this->_sesClient->deleteReceiptRule([
+				'RuleName' => $rule_name,
+				'RuleSetName' => $rule_set_name,
+			]);
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
 }
