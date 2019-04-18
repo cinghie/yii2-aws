@@ -731,4 +731,47 @@ class SES extends Model
 		/** @var Result $result */
 		return $result;
 	}
+
+	/**
+	 * You are limited to sending only a certain amount of messages in a single 24-hour period.
+	 * To check how many messages you are still allowed to send, use the GetSendQuota operation.
+	 * For more information, see Managing Your Amazon SES Sending Limits.
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-send-email.html#check-your-sending-quota
+	 */
+	public function checkSendingQuota()
+	{
+		try {
+			$result = $this->_sesClient->getSendQuota();
+			$send_limit = $result['Max24HourSend'];
+			$sent = $result['SentLast24Hours'];
+			$available = $send_limit - $sent;
+			Yii::$app->session->setFlash('success', Yii::t('aws','You can send {available} more messages in the next 24 hours'),['available' => $available]);
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * To retrieve metrics for messages you've sent in the past two weeks, use the GetSendStatistics operation.
+	 * This example returns the number of delivery attempts, bounces, complaints, and rejected messages in 15-minute increments.
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-send-email.html#monitor-your-sending-activity
+	 */
+	public function getSendingStatistics()
+	{
+		try {
+			$result = $this->_sesClient->getSendStatistics();
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
 }

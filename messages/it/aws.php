@@ -14,4 +14,5 @@ return [
 	'Email Template deleted correctly' => 'Email Template cancellato corettamente',
 	'Template {0} correctly created' => 'Il template {0} è stato creato correttamente',
 	'Verification Identity Email was sent to email {0}' => 'Un\' email per la verifica dell\'identità è stata inviata all\'indirizzo {0}',
+	'You can send {available} more messages in the next 24 hours' => 'Puoi inviare {available} ulteriori messaggi nelle prossime 24 ore',
 ];
