@@ -23,6 +23,7 @@ use yii\base\Model;
  * Class SES
  *
  * @property SesClient $sesClient
+ * @property Result $sendingStatistics
  *
  * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-examples.html
  */
@@ -597,7 +598,7 @@ class SES extends Model
 	 * @return Result
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-rules.html#describe-a-receipt-rule
 	 */
-	public function describeReceiptRule($rule_name,$rule_set_name)
+	public function describeReceiptRule($rule_name, $rule_set_name)
 	{
 		try {
 			$result = $this->_sesClient->describeReceiptRule([
@@ -717,7 +718,7 @@ class SES extends Model
 	 * @return Result
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-rules.html#delete-a-receipt-rule
 	 */
-	public function deleteReceiptRule($rule_name,$rule_set_name)
+	public function deleteReceiptRule($rule_name, $rule_set_name)
 	{
 		try {
 			$result = $this->_sesClient->deleteReceiptRule([
@@ -767,6 +768,107 @@ class SES extends Model
 	{
 		try {
 			$result = $this->_sesClient->getSendStatistics();
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * To authorize another AWS account to send emails on your behalf,
+	 * use an identity policy to add or update authorization to send emails from your verified email addresses or domains.
+	 * To create an identity policy, use the PutIdentityPolicy operation.
+	 *
+	 * @param string $identity
+	 * @param string $policy
+	 * @param string $policyName
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-sender-policy.html#create-an-authorized-sender
+	 */
+	public function createAuthorizedSender($identity, $policy, $policyName)
+	{
+		try {
+			$result = $this->_sesClient->putIdentityPolicy([
+				'Identity' => $identity,
+				'Policy' => $policy,
+				'PolicyName' => $policyName,
+			]);
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * Return the sending authorization policies that are associated with a specific email identity or domain identity.
+	 * To get the sending authorization for a given email address or domain, use the GetIdentityPolicy operation.
+	 *
+	 * @param string $identity
+	 * @param string $policyNames
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-sender-policy.html#retrieve-polices-for-an-authorized-sender
+	 */
+	public function retrievePolicesForAuthorizedSender($identity, $policyNames)
+	{
+		try {
+			$result = $this->_sesClient->getIdentityPolicies([
+				'Identity' => $identity,
+				'PolicyNames' => $policyNames,
+			]);
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * To list the sending authorization policies that are associated with a specific email identity or
+	 * domain identity in the current AWS Region, use the ListIdentityPolicies operation.
+	 *
+	 * @param string $identity
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-sender-policy.html#list-authorized-senders
+	 */
+	public function listAuthorizedSenders($identity)
+	{
+		try {
+			$result = $this->_sesClient->listIdentityPolicies([
+				'Identity' => $identity,
+			]);
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * Remove sending authorization for another AWS account to send emails with an email identity or
+	 * domain identity by deleting the associated identity policy with the DeleteIdentityPolicy operation.
+	 *
+	 * @param string $identity
+	 * @param string $policyName
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-sender-policy.html#revoke-permission-for-an-authorized-sender
+	 */
+	public function revokePermissionForAuthorizedSender($identity, $policyName)
+	{
+		try {
+			$result = $this->_sesClient->deleteIdentityPolicy([
+				'Identity' => $identity,
+				'PolicyName' => $policyName,
+			]);
 		} catch (AwsException $e) {
 			Yii::$app->session->setFlash('error', $e->getMessage());
 		}
