@@ -22,8 +22,9 @@ use yii\base\Model;
 /**
  * Class AWS
  *
- * @property Result $buckets
  * @property S3Client $s3Client
+ * @property Result $buckets
+ * @property array $accessControlListPolicy
  *
  * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples.html
  */
@@ -114,6 +115,48 @@ class S3 extends Model
 				'Key' => $key,
 				'SourceFile' => $filePath,
 			]);
+		} catch (S3Exception $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * Get an Access Control List Policy
+	 *
+	 * @param string $bucketName
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples-access-permissions.html
+	 */
+	public function getAccessControlListPolicy($bucketName)
+	{
+		try {
+			$result = $this->_s3Client->getBucketAcl([
+				'Bucket' => $bucketName
+			]);
+		} catch (S3Exception $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * Set an Access Control List Policy
+	 *
+	 * @param array $params
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples-access-permissions.html
+	 */
+	public function setAccessControlListPolicy($params)
+	{
+		try {
+			$result = $this->_s3Client->putBucketAcl($params);
 		} catch (S3Exception $e) {
 			Yii::$app->session->setFlash('error', $e->getMessage());
 		}
