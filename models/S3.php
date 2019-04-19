@@ -67,7 +67,7 @@ class S3 extends Model
 	{
 		try {
 			$buckets = $this->_s3Client->listBuckets();
-		} catch (S3Exception $e) {
+		} catch (AwsException $e) {
 			Yii::$app->session->setFlash('error', $e->getMessage());
 		}
 
@@ -115,7 +115,7 @@ class S3 extends Model
 				'Key' => $key,
 				'SourceFile' => $filePath,
 			]);
-		} catch (S3Exception $e) {
+		} catch (AwsException $e) {
 			Yii::$app->session->setFlash('error', $e->getMessage());
 		}
 
@@ -137,7 +137,7 @@ class S3 extends Model
 			$result = $this->_s3Client->getBucketAcl([
 				'Bucket' => $bucketName
 			]);
-		} catch (S3Exception $e) {
+		} catch (AwsException $e) {
 			Yii::$app->session->setFlash('error', $e->getMessage());
 		}
 
@@ -157,7 +157,55 @@ class S3 extends Model
 	{
 		try {
 			$result = $this->_s3Client->putBucketAcl($params);
-		} catch (S3Exception $e) {
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * Create a PHP file with the following code. First create an AWS.S3 client service,
+	 * then call the getBucketCors method and specify the bucket whose CORS configuration you want.
+	 *
+	 * The only parameter required is the name of the selected bucket. If the bucket currently has a CORS configuration,
+	 * that configuration is returned by Amazon S3 as a CORSRules object.
+	 *
+	 * @param string $bucketName
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples-configuring-a-bucket.html#get-the-cors-configuration
+	 */
+	public function getCORSConfiguration($bucketName)
+	{
+		try {
+			$result = $this->_s3Client->getBucketCors([
+				'Bucket' => $bucketName
+			]);
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getMessage());
+		}
+
+		/** @var Result $result */
+		return $result;
+	}
+
+	/**
+	 * Create a PHP file with the following code. First create an AWS.S3 client service.
+	 * Then call the putBucketCors method and specify the bucket whose CORS configuration to set,
+	 * and the CORSConfiguration as a CORSRules JSON object.
+	 *
+	 * @param array $array
+	 *
+	 * @return Result
+	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples-configuring-a-bucket.html#set-the-cors-configuration
+	 */
+	public function setCORSConfiguration($array)
+	{
+		try {
+			$result = $this->_s3Client->putBucketCors($array);
+		} catch (AwsException $e) {
 			Yii::$app->session->setFlash('error', $e->getMessage());
 		}
 
