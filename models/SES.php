@@ -748,7 +748,7 @@ class SES extends Model
 			$send_limit = $result['Max24HourSend'];
 			$sent = $result['SentLast24Hours'];
 			$available = $send_limit - $sent;
-			Yii::$app->session->setFlash('success', Yii::t('aws','You can send {available} more messages in the next 24 hours'),['available' => $available]);
+			//Yii::$app->session->setFlash('success', Yii::t('aws','You can send {available} more messages in the next 24 hours'),['available' => $available]);
 		} catch (AwsException $e) {
 			Yii::$app->session->setFlash('error', $e->getMessage());
 		}
