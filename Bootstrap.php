@@ -54,7 +54,7 @@ class Bootstrap implements BootstrapInterface
                 $modelName = is_array($definition) ? $definition['class'] : $definition;
                 $module->modelMap[$name] = $modelName;
 
-                if (in_array($name,['Attachments','Categories','Items','Tags','Translations']))
+                if (in_array($name,['S3','SES']))
                 {
                     Yii::$container->set($name . 'Query', function () use ($modelName) {
                         return $modelName::find();
