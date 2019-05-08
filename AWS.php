@@ -24,6 +24,9 @@ class AWS extends Module
 	// AWS Rules
 	public $awsRoles = ['admin'];
 
+	// Model map
+	public $modelMap = [];
+
 	/**
 	 * @inheritdoc
 	 *
