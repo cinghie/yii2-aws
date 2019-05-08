@@ -116,3 +116,20 @@ Override view example, on components config
 	
 ],
 ```
+
+## Filters
+
+If you have a Yii2 App Advanced (frontend/backend) you can exclude frontend actions 
+
+```
+use cinghie\articles\filters\FrontendFilter as AwsFrontendFilter;
+
+'modules' => [ 
+	
+	'aws' => [ 
+		'class' => AWS::class,
+		'as frontend' => AwsFrontendFilter::class,
+	]
+	
+],
+```
