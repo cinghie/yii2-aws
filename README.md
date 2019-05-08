@@ -65,3 +65,54 @@ use cinghie\aws\AWS as AWSModule;
 ],
 
 ```
+
+## Overrides
+
+Override controller example, on modules config
+
+```
+'modules' => [ 
+	
+	'aws' => [ 
+		'class' => AWS::class,
+		'controllerMap' => [
+			's3' => 'app\controllers\S3Controller',
+			'ses' => 'app\controllers\SesController',
+		]
+	]
+	
+],
+```
+
+Override models example, on modules config
+
+```
+'modules' => [ 
+	
+	'aws' => [ 
+		'class' => AWS::class,
+		'modelMap' => [
+			'S3' => 'app\models\S3',
+			'SES' => 'app\models\SES',
+		]
+	]
+	
+],
+```
+
+Override view example, on components config
+
+```
+'components' => [ 
+
+	'view' => [
+		'theme' => [
+			'pathMap' => [
+				'@cinghie/aws/views/s3' => '@app/views/aws/s3',
+				'@cinghie/aws/views/ses' => '@app/views/aws/ses',
+			],
+		],
+	],
+	
+],
+```
