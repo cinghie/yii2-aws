@@ -20,5 +20,8 @@
         "psr-4": {
             "cinghie\\aws\\": ""
         }
+    },
+    "extra": {
+        "bootstrap": "cinghie\\aws\\Bootstrap"
     }
 }
