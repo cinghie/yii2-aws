@@ -24,6 +24,7 @@ use yii\base\Model;
  *
  * @property S3Client $s3Client
  * @property Result $buckets
+ * @property-write array $corsConfiguration
  * @property array $accessControlListPolicy
  *
  * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples.html
@@ -60,7 +61,7 @@ class S3 extends Model
 	/**
 	 * Get Buckets
 	 *
-	 * @return Result
+	 * @return Result || array
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples-creating-buckets.html#list-buckets
 	 */
 	public function getBuckets()
@@ -68,10 +69,10 @@ class S3 extends Model
 		try {
 			$buckets = $this->_s3Client->listBuckets();
 		} catch (AwsException $e) {
+			$buckets = [];
 			Yii::$app->session->setFlash('error', $e->getMessage());
 		}
 
-		/** @var Result $buckets */
 		return $buckets;
 	}
 
@@ -80,7 +81,7 @@ class S3 extends Model
 	 *
 	 * @param string $bucketName
 	 *
-	 * @return Result
+	 * @return Result || array
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples-creating-buckets.html#create-a-bucket
 	 */
 	public function createBucket($bucketName)
@@ -90,10 +91,10 @@ class S3 extends Model
 				'Bucket' => $bucketName,
 			]);
 		} catch (AwsException $e) {
+			$result = [];
 			Yii::$app->session->setFlash('error', $e->getMessage());
 		}
 
-		/** @var Result $result */
 		return $result;
 	}
 
@@ -104,7 +105,7 @@ class S3 extends Model
 	 * @param string $key
 	 * @param string $filePath
 	 *
-	 * @return Result
+	 * @return Result || array
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples-creating-buckets.html#put-an-object-in-a-bucket
 	 */
 	public function putObjectInBucket($bucketName, $key, $filePath)
@@ -116,10 +117,10 @@ class S3 extends Model
 				'SourceFile' => $filePath,
 			]);
 		} catch (AwsException $e) {
+			$result = [];
 			Yii::$app->session->setFlash('error', $e->getMessage());
 		}
 
-		/** @var Result $result */
 		return $result;
 	}
 
@@ -128,7 +129,7 @@ class S3 extends Model
 	 *
 	 * @param string $bucketName
 	 *
-	 * @return Result
+	 * @return Result || array
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples-access-permissions.html
 	 */
 	public function getAccessControlListPolicy($bucketName)
@@ -138,10 +139,10 @@ class S3 extends Model
 				'Bucket' => $bucketName
 			]);
 		} catch (AwsException $e) {
+			$result = [];
 			Yii::$app->session->setFlash('error', $e->getMessage());
 		}
 
-		/** @var Result $result */
 		return $result;
 	}
 
@@ -150,7 +151,7 @@ class S3 extends Model
 	 *
 	 * @param array $params
 	 *
-	 * @return Result
+	 * @return Result || array
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples-access-permissions.html
 	 */
 	public function setAccessControlListPolicy($params)
@@ -158,10 +159,10 @@ class S3 extends Model
 		try {
 			$result = $this->_s3Client->putBucketAcl($params);
 		} catch (AwsException $e) {
+			$result = [];
 			Yii::$app->session->setFlash('error', $e->getMessage());
 		}
 
-		/** @var Result $result */
 		return $result;
 	}
 
@@ -174,20 +175,20 @@ class S3 extends Model
 	 *
 	 * @param string $bucketName
 	 *
-	 * @return Result
+	 * @return Result || array
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples-configuring-a-bucket.html#get-the-cors-configuration
 	 */
-	public function getCORSConfiguration($bucketName)
+	public function getCorsConfiguration($bucketName)
 	{
 		try {
 			$result = $this->_s3Client->getBucketCors([
 				'Bucket' => $bucketName
 			]);
 		} catch (AwsException $e) {
+			$result = [];
 			Yii::$app->session->setFlash('error', $e->getMessage());
 		}
 
-		/** @var Result $result */
 		return $result;
 	}
 
@@ -198,7 +199,7 @@ class S3 extends Model
 	 *
 	 * @param array $array
 	 *
-	 * @return Result
+	 * @return Result || array
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples-configuring-a-bucket.html#set-the-cors-configuration
 	 */
 	public function setCORSConfiguration($array)
@@ -206,10 +207,10 @@ class S3 extends Model
 		try {
 			$result = $this->_s3Client->putBucketCors($array);
 		} catch (AwsException $e) {
+			$result = [];
 			Yii::$app->session->setFlash('error', $e->getMessage());
 		}
 
-		/** @var Result $result */
 		return $result;
 	}
 }

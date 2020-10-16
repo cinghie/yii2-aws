@@ -26,19 +26,29 @@ use yii\base\InvalidConfigException;
  */
 class AWS extends Component
 {
-	/** @var string $accessKey */
+	/**
+	 * @var string $accessKey
+	 */
 	public $accessKey;
 
-	/** @var string $region */
+	/**
+	 * @var string $region
+	 */
 	public $region;
 
-	/** @var string $secretKey */
+	/**
+	 * @var string $secretKey
+	 */
 	public $secretKey;
 
-	/** @var string $secretKey */
+	/**
+	 * @var string $secretKey
+	 */
 	public $version;
 
-	/** @var Sdk $_aws */
+	/**
+	 * @var Sdk $_aws
+	 */
 	private $_aws;
 
 	/**

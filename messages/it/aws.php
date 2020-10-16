@@ -2,7 +2,7 @@
 
 return [
 	'Amazon' => 'Amazon',
-	'Amazon MWS' => 'Amazon MWS',
+	'Amazon AWS' => 'Amazon AWS',
 	'Amazon S3'  => 'Amazon S3',
 	'Amazon SES' => 'Amazon SES',
 	'AWS Access Key missing!' => 'Chiave di Accesso AWS mancante!',

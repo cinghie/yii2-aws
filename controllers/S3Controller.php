@@ -18,6 +18,9 @@ use cinghie\aws\models\S3;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 
+/**
+ * Class S3Controller
+ */
 class S3Controller extends Controller
 {
 	/**

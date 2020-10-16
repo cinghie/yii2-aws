@@ -18,6 +18,9 @@ use cinghie\aws\models\SES;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 
+/**
+ * Class SesController
+ */
 class SesController extends Controller
 {
 	/**
