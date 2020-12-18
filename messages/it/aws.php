@@ -5,6 +5,7 @@ return [
 	'Amazon AWS' => 'Amazon AWS',
 	'Amazon S3'  => 'Amazon S3',
 	'Amazon SES' => 'Amazon SES',
+	'Amazon SES' => 'Amazon SNS',
 	'AWS Access Key missing!' => 'Chiave di Accesso AWS mancante!',
 	'AWS Region missing!' => 'Regione AWS mancante!',
 	'AWS Secret Key missing!' => 'Chiave Segreta AWS mancante!',
