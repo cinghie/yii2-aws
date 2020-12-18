@@ -74,8 +74,8 @@ class AWS extends Component
 
 		$this->accessKey = $config['accessKey'];
 		$this->secretKey = $config['secretKey'];
-		$this->region    = $config['region'];
-		$this->version   = $config['version'] ?: 'latest';
+		$this->region = $config['region'];
+		$this->version = $config['version'] ?: 'latest';
 
 		parent::__construct($config);
 	}

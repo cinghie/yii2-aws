@@ -22,7 +22,7 @@ use yii\base\Model;
 /**
  * Class SES
  *
- * @property SesClient $sesClient
+ * @property SesClient $_sesClient
  * @property Result $sendingStatistics
  *
  * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-examples.html
