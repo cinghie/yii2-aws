@@ -175,6 +175,7 @@ class SNS extends Model
 				'AttributeValue' => $value,
 				'TopicArn' => $topic,
 			]);
+			Yii::$app->session->setFlash('success', Yii::t('aws', 'SNS Topic Attribute setted correctly'));
 		} catch (AwsException $e) {
 			Yii::$app->session->setFlash('error', $e->getMessage());
 		}

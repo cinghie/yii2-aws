@@ -31,6 +31,7 @@ class Bootstrap implements BootstrapInterface
     private $_modelMap = [
         'S3' => S3::class,
         'SES' => SES::class,
+        'SNS' => SNS::class,
     ];
 
 	/**
@@ -54,7 +55,7 @@ class Bootstrap implements BootstrapInterface
                 $modelName = is_array($definition) ? $definition['class'] : $definition;
                 $module->modelMap[$name] = $modelName;
 
-                if (in_array($name,['S3','SES']))
+                if (in_array($name,['S3','SES','SNS']))
                 {
                     Yii::$container->set($name . 'Query', function () use ($modelName) {
                         return $modelName::find();
