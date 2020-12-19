@@ -12,12 +12,15 @@ Features
 -----------------
 
  - Amazon S3:  
- https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples.html
+ https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples.html  
  - Amazon SES:  
- https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-examples.html
+ https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-examples.html  
+ - Amazon SNS:  
+ https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/sns-examples.html  
  - Amazon SES Deliverability Dashboard:  
- https://docs.aws.amazon.com/en_us/ses/latest/DeveloperGuide/bouncecomplaintdashboard.html
-
+ https://docs.aws.amazon.com/en_us/ses/latest/DeveloperGuide/bouncecomplaintdashboard.html  
+ 
+ 
 Installation
 -----------------
 
