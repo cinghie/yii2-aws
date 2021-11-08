@@ -15,6 +15,7 @@ namespace cinghie\aws;
 use Yii;
 use cinghie\aws\models\S3;
 use cinghie\aws\models\SES;
+use cinghie\aws\models\SNS;
 use yii\base\Application;
 use yii\base\BootstrapInterface;
 use yii\base\Module;

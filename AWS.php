@@ -13,8 +13,9 @@
 namespace cinghie\aws;
 
 use Yii;
-use yii\i18n\PhpMessageSource;
+use yii\base\InvalidParamException;
 use yii\base\Module;
+use yii\i18n\PhpMessageSource;
 
 /**
  * Class AWS

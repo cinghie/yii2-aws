@@ -48,7 +48,7 @@ class S3Controller extends Controller
 	/**
 	 * Dashboard
 	 *
-	 * @return mixed
+	 * @return string
 	 */
     public function actionIndex()
     {

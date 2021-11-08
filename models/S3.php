@@ -25,7 +25,10 @@ use yii\base\Model;
  * @property S3Client $_s3Client
  * @property Result $buckets
  * @property array $accessControlListPolicy
+ *
+ * @property-read S3Client $s3Client
  * @property-write array $corsConfiguration
+ * @property-write array $cORSConfiguration
  *
  * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples.html
  */

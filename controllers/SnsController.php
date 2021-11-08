@@ -48,7 +48,7 @@ class SnsController extends Controller
 	/**
 	 * Dashboard
 	 *
-	 * @return mixed
+	 * @return string
 	 */
 	public function actionIndex()
 	{

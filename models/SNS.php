@@ -48,7 +48,7 @@ class SNS extends Model
 	/**
 	 * Get SNS Client
 	 *
-	 * @return SesClient
+	 * @return SnsClient
 	 */
 	public function getSnsClient()
 	{
@@ -61,17 +61,17 @@ class SNS extends Model
 	 * To create a topic, use the CreateTopic operation.
 	 * Each topic name in your AWS account must be unique.
 	 *
-	 * @param string $topicname
+	 * @param string $topicName
 	 *
 	 * @return Result
 	 */
-	public function createTopic($topicname)
+	public function createTopic($topicName)
 	{
 		try {
 			$result = $this->_snsClient->createTopic([
-				'Name' => $topicname,
+				'Name' => $topicName,
 			]);
-			Yii::$app->session->setFlash('success', Yii::t('aws', 'SNS Topic {0} added correctly', $topicname));
+			Yii::$app->session->setFlash('success', Yii::t('aws', 'SNS Topic {0} added correctly', $topicName));
 		} catch (AwsException $e) {
 			Yii::$app->session->setFlash('error', $e->getMessage());
 		}
@@ -115,7 +115,7 @@ class SNS extends Model
 	{
 		try {
 			$result = $this->_snsClient->deleteTopic([
-				'TopicArn' => $topic,
+				'TopicArn' => $topicArn,
 			]);
 			Yii::$app->session->setFlash('success', Yii::t('aws', 'SNS Topic {0} deleted correctly', $topicArn));
 		} catch (AwsException $e) {
@@ -200,10 +200,10 @@ class SNS extends Model
 	 * @example $endpoint = 'sample@example.com';
 	 * @example $topic = 'arn:aws:sns:us-east-1:111122223333:MyTopic';
 	 */
-	public function subscribeEmailToTopic($protocol = 'email', $endpoint, $topic)
+	public function subscribeEmailToTopic($protocol = 'email', $endpoint = 'sample@example.com', $topic = 'arn:aws:sns:us-east-1:111122223333:MyTopic')
 	{
 		try {
-			$result = $SnSclient->subscribe([
+			$result = $this->_snsClient->subscribe([
 				'Protocol' => $protocol,
 				'Endpoint' => $endpoint,
 				'ReturnSubscriptionArn' => true,
@@ -233,10 +233,10 @@ class SNS extends Model
 	 * @example $endpoint = 'https://';
 	 * @example $topic = 'arn:aws:sns:us-east-1:111122223333:MyTopic';
 	 */
-	public function subscribeAppEndPointToTopic($protocol = 'https', $endpoint, $topic)
+	public function subscribeAppEndPointToTopic($protocol = 'https', $endpoint = 'https://', $topic = 'arn:aws:sns:us-east-1:111122223333:MyTopic')
 	{
 		try {
-			$result = $SnSclient->subscribe([
+			$result = $this->_snsClient->subscribe([
 				'Protocol' => $protocol,
 				'Endpoint' => $endpoint,
 				'ReturnSubscriptionArn' => true,
@@ -266,10 +266,10 @@ class SNS extends Model
 	 * @example $endpoint = 'arn:aws:lambda:us-east-1:123456789023:function:messageStore';
 	 * @example $topic = 'arn:aws:sns:us-east-1:111122223333:MyTopic';
 	 */
-	public function subscribeLambdaFunctionToTopic($protocol = 'lambda', $endpoint, $topic)
+	public function subscribeLambdaFunctionToTopic($protocol = 'lambda', $endpoint = 'arn:aws:lambda:us-east-1:123456789023:function:messageStore', $topic = 'arn:aws:sns:us-east-1:111122223333:MyTopic')
 	{
 		try {
-			$result = $SnSclient->subscribe([
+			$result = $this->_snsClient->subscribe([
 				'Protocol' => $protocol,
 				'Endpoint' => $endpoint,
 				'ReturnSubscriptionArn' => true,
@@ -300,10 +300,10 @@ class SNS extends Model
 	 * @example $endpoint = '+1XXX5550100';
 	 * @example $topic = 'arn:aws:sns:us-east-1:111122223333:MyTopic';
 	 */
-	public function subscribeTextSMSToTopic($protocol = 'sms', $endpoint, $topic)
+	public function subscribeTextSMSToTopic($protocol = 'sms', $endpoint = '+1XXX5550100', $topic = 'arn:aws:sns:us-east-1:111122223333:MyTopic')
 	{
 		try {
-			$result = $SnSclient->subscribe([
+			$result = $this->_snsClient->subscribe([
 				'Protocol' => $protocol,
 				'Endpoint' => $endpoint,
 				'ReturnSubscriptionArn' => true,
@@ -334,7 +334,7 @@ class SNS extends Model
 	public function confirmSubscriptionToTopic($subscription_token, $topic)
 	{
 		try {
-			$result = $SnSclient->subscribe([
+			$result = $this->_snsClient->subscribe([
 				'Token' => $subscription_token,
 				'TopicArn' => $topic,
 			]);
