@@ -424,6 +424,8 @@ Access is controlled by `awsRoles`:
 ],
 ```
 
+The bootstrap process registers model overrides in Yii's DI container. Query aliases such as `S3Query`, `SESQuery`, and `SNSQuery` are registered only when the mapped class extends `yii\db\ActiveRecord`; plain service models are not treated as ActiveRecord classes.
+
 ### Views
 
 ```php

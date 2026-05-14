@@ -40,10 +40,7 @@ class Bootstrap implements BootstrapInterface
 	 */
     public function bootstrap($app)
     {
-        /**
-         * @var Module $module
-         * @var ActiveRecord $modelName
-         */
+        /** @var Module $module */
         if ($app->hasModule('aws') && ($module = $app->getModule('aws')) instanceof Module)
         {
             $this->_modelMap = array_merge($this->_modelMap, $module->modelMap);
@@ -56,7 +53,7 @@ class Bootstrap implements BootstrapInterface
                 $modelName = is_array($definition) ? $definition['class'] : $definition;
                 $module->modelMap[$name] = $modelName;
 
-                if (in_array($name,['S3','SES','SNS']))
+                if (is_subclass_of($modelName, ActiveRecord::class))
                 {
                     Yii::$container->set($name . 'Query', function () use ($modelName) {
                         return $modelName::find();
