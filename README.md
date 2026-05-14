@@ -6,20 +6,20 @@
 ![Latest Commit](https://img.shields.io/github/last-commit/cinghie/yii2-aws.svg)
 [![Total Downloads](https://img.shields.io/packagist/dt/cinghie/yii2-aws.svg)](https://packagist.org/packages/cinghie/yii2-aws)
 
-Yii2 AWS integra AWS SDK for PHP v3 in applicazioni Yii2 e fornisce wrapper per:
+Yii2 AWS integrates AWS SDK for PHP v3 into Yii2 applications and provides wrappers for:
 
 - Amazon S3
 - Amazon SES
 - Amazon SNS
-- dashboard amministrative Yii2 per i servizi inclusi
+- Yii2 admin dashboards for the included services
 
-## Installazione
+## Installation
 
 ```bash
 composer require cinghie/yii2-aws
 ```
 
-Oppure aggiungere il pacchetto al `composer.json`:
+Or add the package to `composer.json`:
 
 ```json
 {
@@ -29,9 +29,9 @@ Oppure aggiungere il pacchetto al `composer.json`:
 }
 ```
 
-## Configurazione Base
+## Basic Configuration
 
-Configurare il componente `aws` e, se servono le dashboard incluse, il modulo `aws`.
+Configure the `aws` component and, if you need the included dashboards, the `aws` module.
 
 ```php
 use cinghie\aws\components\AWS;
@@ -54,11 +54,11 @@ return [
 ];
 ```
 
-Con questa configurazione le credenziali non sono salvate nel codice: AWS SDK usa la credential provider chain nativa, quindi variabili ambiente, IAM role, container credentials, profili locali, ecc.
+With this configuration credentials are not stored in code: AWS SDK uses its native credential provider chain, including environment variables, IAM roles, container credentials, local profiles, and other supported providers.
 
-## Credenziali
+## Credentials
 
-### Opzione Consigliata: IAM, Env O Provider Chain
+### Recommended Option: IAM, Env Or Provider Chain
 
 ```php
 'aws' => [
@@ -68,7 +68,7 @@ Con questa configurazione le credenziali non sono salvate nel codice: AWS SDK us
 ],
 ```
 
-Variabili ambiente supportate dall'AWS SDK:
+Environment variables supported by AWS SDK:
 
 ```bash
 AWS_ACCESS_KEY_ID=...
@@ -76,7 +76,7 @@ AWS_SECRET_ACCESS_KEY=...
 AWS_DEFAULT_REGION=eu-south-1
 ```
 
-### Profilo AWS Locale
+### Local AWS Profile
 
 ```php
 'aws' => [
@@ -87,9 +87,9 @@ AWS_DEFAULT_REGION=eu-south-1
 ],
 ```
 
-### Credenziali Statiche
+### Static Credentials
 
-Usarle solo quando non e' disponibile una soluzione IAM/env/profile.
+Use static credentials only when an IAM, env, or profile based setup is not available.
 
 ```php
 'aws' => [
@@ -101,11 +101,11 @@ Usarle solo quando non e' disponibile una soluzione IAM/env/profile.
 ],
 ```
 
-Se si configura solo una tra `accessKey` e `secretKey`, il componente genera `InvalidConfigException`.
+If only one of `accessKey` or `secretKey` is configured, the component throws `InvalidConfigException`.
 
-## Opzioni AWS SDK
+## AWS SDK Options
 
-Il componente espone le principali opzioni di `Aws\Sdk`:
+The component exposes the main `Aws\Sdk` options:
 
 ```php
 'aws' => [
@@ -122,23 +122,24 @@ Il componente espone le principali opzioni di `Aws\Sdk`:
         'timeout' => 30,
     ],
     'sdkOptions' => [
-        // Qualsiasi altra opzione supportata da Aws\Sdk.
+        // Any other option supported by Aws\Sdk.
     ],
 ],
 ```
 
-`sdkOptions` viene passato direttamente al costruttore `Aws\Sdk`, quindi puo' essere usato per opzioni avanzate non esposte come proprieta' dedicate.
+`sdkOptions` is passed directly to the `Aws\Sdk` constructor, so it can be used for advanced options that are not exposed as dedicated component properties.
 
-## Gestione Errori
+## Error Handling
 
-I service non scrivono flash message e non trasformano gli errori AWS in array vuoti.
+The services do not write flash messages and do not convert AWS errors into empty arrays.
 
-Il contratto e':
+The contract is:
 
-- successo: ritorna `Aws\Result`
-- errore AWS: lancia `Aws\Exception\AwsException`
+- success: returns `Aws\Result`
+- AWS error: throws `Aws\Exception\AwsException`
+- invalid local input: throws `InvalidArgumentException`
 
-Esempio:
+Example:
 
 ```php
 use Aws\Exception\AwsException;
@@ -150,14 +151,34 @@ try {
 } catch (AwsException $e) {
     Yii::error($e->getMessage(), __METHOD__);
     Yii::$app->session->setFlash('error', $e->getAwsErrorMessage() ?: $e->getMessage());
+} catch (InvalidArgumentException $e) {
+    Yii::$app->session->setFlash('error', $e->getMessage());
 }
 ```
 
-Le dashboard incluse catturano gia' `AwsException` nei controller e mostrano il messaggio nella UI.
+The included dashboards already catch `AwsException` in their controllers and display the error message in the UI.
 
-## Iniezione Client E Test
+## Input Validation
 
-I model possono ricevere client AWS specifici via configurazione Yii. Questo semplifica test, mocking e override.
+The wrappers validate common input mistakes before calling AWS. This keeps application errors deterministic and avoids sending obviously invalid requests to AWS.
+
+Validated inputs include:
+
+- S3 bucket names
+- SNS topic names and topic ARNs
+- SNS subscription protocols and endpoints
+- SES email addresses
+- SES domain names
+- SES template names
+- SES recipient lists
+- SES receipt filter policies, limited to `Allow` or `Block`
+- SES policy JSON strings
+
+These checks are intentionally strict for common application use. AWS remains the final authority for service-specific edge cases.
+
+## Client Injection And Tests
+
+Models can receive specific AWS clients through Yii configuration. This simplifies testing, mocking, and application-level overrides.
 
 ```php
 use Aws\S3\S3Client;
@@ -174,17 +195,17 @@ $s3 = Yii::createObject([
 ]);
 ```
 
-Sono disponibili i setter:
+Available setters:
 
 - `S3::setS3Client(S3Client $client)`
 - `SES::setSesClient(SesClient $client)`
 - `SNS::setSnsClient(SnsClient $client)`
 
-Se il client non viene iniettato, il model lo crea dal componente `Yii::$app->aws->sdk`.
+If no client is injected, the model creates it from the `Yii::$app->aws->sdk` component.
 
 ## Amazon S3
 
-### Uso Base
+### Basic Usage
 
 ```php
 use Aws\Exception\AwsException;
@@ -202,14 +223,14 @@ try {
 }
 ```
 
-### Creare Un Bucket
+### Create A Bucket
 
 ```php
 $s3 = Yii::createObject(\cinghie\aws\models\S3::class);
 $result = $s3->createBucket('my-application-bucket');
 ```
 
-### Caricare Un File
+### Upload A File
 
 ```php
 $s3 = Yii::createObject(\cinghie\aws\models\S3::class);
@@ -221,7 +242,7 @@ $result = $s3->putObjectInBucket(
 );
 ```
 
-### Configurazione MinIO O S3 Compatibile
+### MinIO Or S3-Compatible Configuration
 
 ```php
 'aws' => [
@@ -237,7 +258,7 @@ $result = $s3->putObjectInBucket(
 
 ## Amazon SES
 
-### Verificare Identita'
+### Verify Identities
 
 ```php
 use Aws\Exception\AwsException;
@@ -251,27 +272,27 @@ try {
 }
 ```
 
-### Listare Identita' Email
+### List Email Identities
 
 ```php
 $ses = Yii::createObject(\cinghie\aws\models\SES::class);
 $result = $ses->listIdentities();
 ```
 
-### Creare Un Template
+### Create A Template
 
 ```php
 $ses = Yii::createObject(\cinghie\aws\models\SES::class);
 
 $result = $ses->createTemplate(
     'OrderConfirmation',
-    'Conferma ordine',
-    '<h1>Grazie per il tuo ordine</h1>',
-    'Grazie per il tuo ordine'
+    'Order confirmation',
+    '<h1>Thank you for your order</h1>',
+    'Thank you for your order'
 );
 ```
 
-### Inviare Email Con Template
+### Send A Templated Email
 
 ```php
 $ses = Yii::createObject(\cinghie\aws\models\SES::class);
@@ -284,11 +305,36 @@ $result = $ses->sendTemplatedEmail(
 );
 ```
 
+### Create A Receipt Filter
+
+```php
+$ses = Yii::createObject(\cinghie\aws\models\SES::class);
+
+$result = $ses->createEmailFilter(
+    'OfficeIpAllowList',
+    '203.0.113.10/32',
+    'Allow'
+);
+```
+
+### Create A Receipt Rule With Recipients
+
+```php
+$ses = Yii::createObject(\cinghie\aws\models\SES::class);
+
+$result = $ses->createReceiptRule(
+    'InboundToS3',
+    'DefaultRuleSet',
+    'my-application-bucket',
+    ['inbound@example.com']
+);
+```
+
 ## Amazon SNS
 
-I metodi SNS non hanno piu' valori fittizi di default: protocollo, endpoint e topic devono essere sempre espliciti.
+SNS methods no longer have fake default values: protocol, endpoint, and topic must always be passed explicitly.
 
-### Creare Un Topic
+### Create A Topic
 
 ```php
 use Aws\Exception\AwsException;
@@ -303,7 +349,7 @@ try {
 }
 ```
 
-### Sottoscrivere Un Endpoint Email
+### Subscribe An Email Endpoint
 
 ```php
 $sns = Yii::createObject(\cinghie\aws\models\SNS::class);
@@ -315,7 +361,7 @@ $result = $sns->subscribeEmailToTopic(
 );
 ```
 
-### Sottoscrivere Un Endpoint HTTPS
+### Subscribe An HTTPS Endpoint
 
 ```php
 $sns = Yii::createObject(\cinghie\aws\models\SNS::class);
@@ -327,15 +373,15 @@ $result = $sns->subscribeAppEndPointToTopic(
 );
 ```
 
-## Dashboard Yii2
+## Yii2 Dashboards
 
-Il modulo espone dashboard base per i servizi:
+The module exposes basic dashboards for the services:
 
 - `/aws/s3/index`
 - `/aws/ses/index`
 - `/aws/sns/index`
 
-L'accesso e' controllato da `awsRoles`:
+Access is controlled by `awsRoles`:
 
 ```php
 'modules' => [
@@ -346,9 +392,9 @@ L'accesso e' controllato da `awsRoles`:
 ],
 ```
 
-## Override
+## Overrides
 
-### Controller
+### Controllers
 
 ```php
 'modules' => [
@@ -363,7 +409,7 @@ L'accesso e' controllato da `awsRoles`:
 ],
 ```
 
-### Model
+### Models
 
 ```php
 'modules' => [
@@ -378,7 +424,7 @@ L'accesso e' controllato da `awsRoles`:
 ],
 ```
 
-### View
+### Views
 
 ```php
 'components' => [
@@ -394,9 +440,9 @@ L'accesso e' controllato da `awsRoles`:
 ],
 ```
 
-## Filtro Frontend
+## Frontend Filter
 
-In una Yii2 Advanced App e' possibile nascondere le azioni del modulo lato frontend.
+In a Yii2 Advanced App, frontend module actions can be hidden with the included filter.
 
 ```php
 use cinghie\aws\filters\FrontendFilter as AwsFrontendFilter;
@@ -409,16 +455,16 @@ use cinghie\aws\filters\FrontendFilter as AwsFrontendFilter;
 ],
 ```
 
-## Suggerimenti Operativi
+## Operational Suggestions
 
-- Preferire IAM role, env vars o profili AWS alle credenziali statiche.
-- Non salvare access key e secret key nel repository.
-- Gestire sempre `AwsException` nel livello applicativo.
-- Iniettare client specifici nei test invece di chiamare AWS reale.
-- Usare `endpoint` e `usePathStyleEndpoint` per MinIO/localstack/S3 compatibili.
-- Evitare metodi con valori demo o placeholder nel codice produttivo: passare sempre parametri espliciti.
+- Prefer IAM roles, environment variables, or AWS profiles over static credentials.
+- Do not store access keys or secret keys in the repository.
+- Always handle `AwsException` at the application layer.
+- Inject specific clients in tests instead of calling real AWS services.
+- Use `endpoint` and `usePathStyleEndpoint` for MinIO, LocalStack, and S3-compatible services.
+- Avoid demo values or placeholders in production code: always pass explicit parameters.
 
-## Documentazione AWS
+## AWS Documentation
 
 - S3: https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/s3-examples.html
 - SES: https://docs.aws.amazon.com/sdk-for-php/v3/developer-guide/ses-examples.html
