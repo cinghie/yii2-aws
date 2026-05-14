@@ -7,7 +7,7 @@
  * @github https://github.com/cinghie/yii2-aws
  * @license BSD-3-Clause
  * @package yii2-aws
- * @version 0.1.2
+ * @version 0.2.0
  */
 
 namespace cinghie\aws\models;
