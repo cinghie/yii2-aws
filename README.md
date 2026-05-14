@@ -150,13 +150,13 @@ try {
     $buckets = $s3->getBuckets();
 } catch (AwsException $e) {
     Yii::error($e->getMessage(), __METHOD__);
-    Yii::$app->session->setFlash('error', $e->getAwsErrorMessage() ?: $e->getMessage());
+    Yii::$app->session->setFlash('error', Yii::t('aws', 'Unable to load AWS data.'));
 } catch (InvalidArgumentException $e) {
     Yii::$app->session->setFlash('error', $e->getMessage());
 }
 ```
 
-The included dashboards already catch `AwsException` in their controllers and display the error message in the UI.
+The included dashboards already catch `AwsException` in their controllers, log the detailed error, and display a generic message in the UI.
 
 ## Input Validation
 

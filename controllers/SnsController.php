@@ -13,11 +13,11 @@
 namespace cinghie\aws\controllers;
 
 use Aws\Exception\AwsException;
-use RuntimeException;
 use Yii;
 use cinghie\aws\models\SNS;
 use yii\filters\AccessControl;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 
 /**
  * Class SnsController
@@ -40,7 +40,7 @@ class SnsController extends Controller
 					],
 				],
 				'denyCallback' => static function () {
-					throw new RuntimeException(Yii::t('traits','You are not allowed to access this page'));
+					throw new ForbiddenHttpException(Yii::t('aws','You are not allowed to access this page'));
 				}
 			],
 		];
@@ -53,17 +53,13 @@ class SnsController extends Controller
 	 */
 	public function actionIndex()
 	{
-		$snsClient = null;
-
 		try {
-			$sns = Yii::createObject(SNS::class);
-			$snsClient = $sns->getSNSClient();
+			Yii::createObject(SNS::class);
 		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getAwsErrorMessage() ?: $e->getMessage());
+			Yii::error($e->getMessage(), __METHOD__);
+			Yii::$app->session->setFlash('error', Yii::t('aws', 'Unable to load AWS data.'));
 		}
 
-		return $this->render('index',[
-			'snsClient' => $snsClient
-		]);
+		return $this->render('index');
 	}
 }

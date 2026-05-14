@@ -13,11 +13,11 @@
 namespace cinghie\aws\controllers;
 
 use Aws\Exception\AwsException;
-use RuntimeException;
 use Yii;
 use cinghie\aws\models\SES;
 use yii\filters\AccessControl;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 
 /**
  * Class SesController
@@ -40,7 +40,7 @@ class SesController extends Controller
 					],
 				],
 				'denyCallback' => static function () {
-					throw new RuntimeException(Yii::t('traits','You are not allowed to access this page'));
+					throw new ForbiddenHttpException(Yii::t('aws','You are not allowed to access this page'));
 				}
 			],
 		];
@@ -53,17 +53,13 @@ class SesController extends Controller
 	 */
     public function actionIndex()
     {
-	    $sesClient = null;
-
 	    try {
-		    $ses = Yii::createObject(SES::class);
-		    $sesClient = $ses->getSesClient();
+		    Yii::createObject(SES::class);
 	    } catch (AwsException $e) {
-		    Yii::$app->session->setFlash('error', $e->getAwsErrorMessage() ?: $e->getMessage());
+		    Yii::error($e->getMessage(), __METHOD__);
+		    Yii::$app->session->setFlash('error', Yii::t('aws', 'Unable to load AWS data.'));
 	    }
 
-	    return $this->render('index',[
-		    'sesClient' => $sesClient
-	    ]);
+	    return $this->render('index');
     }
 }

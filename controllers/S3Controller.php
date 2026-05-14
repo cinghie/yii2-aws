@@ -13,11 +13,11 @@
 namespace cinghie\aws\controllers;
 
 use Aws\Exception\AwsException;
-use RuntimeException;
 use Yii;
 use cinghie\aws\models\S3;
 use yii\filters\AccessControl;
 use yii\web\Controller;
+use yii\web\ForbiddenHttpException;
 
 /**
  * Class S3Controller
@@ -40,7 +40,7 @@ class S3Controller extends Controller
 					],
 				],
 				'denyCallback' => static function () {
-					throw new RuntimeException(Yii::t('traits','You are not allowed to access this page'));
+					throw new ForbiddenHttpException(Yii::t('aws','You are not allowed to access this page'));
 				}
 			],
 		];
@@ -53,19 +53,17 @@ class S3Controller extends Controller
 	 */
     public function actionIndex()
     {
-	    $s3Client = null;
 	    $buckets = null;
 
 	    try {
 		    $s3 = Yii::createObject(S3::class);
-		    $s3Client = $s3->getS3Client();
 		    $buckets  = $s3->getBuckets();
 	    } catch (AwsException $e) {
-		    Yii::$app->session->setFlash('error', $e->getAwsErrorMessage() ?: $e->getMessage());
+		    Yii::error($e->getMessage(), __METHOD__);
+		    Yii::$app->session->setFlash('error', Yii::t('aws', 'Unable to load AWS data.'));
 	    }
 
         return $this->render('index',[
-        	's3Client' => $s3Client,
 	        'buckets' => $buckets
         ]);
     }

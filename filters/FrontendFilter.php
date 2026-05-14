@@ -36,7 +36,7 @@ class FrontendFilter extends ActionFilter
     public function beforeAction($action)
     {
         if (in_array($action->controller->action->id, $this->controllers, true)) {
-            throw new NotFoundHttpException(Yii::t('traits','Page not found'));
+            throw new NotFoundHttpException(Yii::t('aws','Page not found'));
         }
 
         return true;
