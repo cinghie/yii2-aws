@@ -16,6 +16,7 @@ use Aws\Exception\AwsException;
 use Aws\Result;
 use Aws\Sdk;
 use Aws\Ses\SesClient;
+use InvalidArgumentException;
 use Yii;
 use yii\base\Model;
 
@@ -91,6 +92,8 @@ class SES extends Model
 	 */
 	public function verifyEmailIdentity($email)
 	{
+		$this->validateEmail($email);
+
 		$result = $this->_sesClient->verifyEmailIdentity([
 			'EmailAddress' => $email
 		]);
@@ -112,6 +115,8 @@ class SES extends Model
 	 */
 	public function verifyDomainIdentity($domain)
 	{
+		$this->validateDomain($domain);
+
 		$result = $this->_sesClient->verifyDomainIdentity([
 			'Domain' => $domain
 		]);
@@ -168,6 +173,8 @@ class SES extends Model
 	 */
 	public function deleteEmail($email)
 	{
+		$this->validateEmail($email);
+
 		$result = $this->_sesClient->deleteIdentity([
 			'Identity' => $email
 		]);
@@ -188,6 +195,8 @@ class SES extends Model
 	 */
 	public function deleteDomain($domain)
 	{
+		$this->validateDomain($domain);
+
 		$result = $this->_sesClient->deleteIdentity([
 			'Identity' => $domain
 		]);
@@ -211,6 +220,8 @@ class SES extends Model
 	 */
 	public function createTemplate($template_name, $subject, $html_body, $plaintext_body)
 	{
+		$this->validateTemplateName($template_name);
+
 		$result = $this->_sesClient->createTemplate([
 			'Template' => [
 				'HtmlPart' => $html_body,
@@ -236,6 +247,8 @@ class SES extends Model
 	 */
 	public function getTemplate($template_name)
 	{
+		$this->validateTemplateName($template_name);
+
 		$result = $this->_sesClient->getTemplate([
 			'TemplateName' => $template_name
 		]);
@@ -277,6 +290,8 @@ class SES extends Model
 	 */
 	public function updateTemplate($template_name, $subject, $html_body, $plaintext_body)
 	{
+		$this->validateTemplateName($template_name);
+
 		$result = $this->_sesClient->updateTemplate([
 			'Template' => [
 				'HtmlPart' => $html_body,
@@ -302,6 +317,8 @@ class SES extends Model
 	 */
 	public function deleteTemplate($template_name)
 	{
+		$this->validateTemplateName($template_name);
+
 		$result = $this->_sesClient->deleteTemplate([
 			'TemplateName' => $template_name
 		]);
@@ -315,22 +332,28 @@ class SES extends Model
 	 *
 	 * @param string $template_name
 	 * @param string $sender_email
-	 * @param string $recipeint_email
+	 * @param array|string $recipient_email
 	 * @param string $reply_email
 	 *
 	 * @return Result
 	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-template.html#send-an-email-with-a-template
 	 */
-	public function sendTemplatedEmail($template_name, $sender_email, $recipeint_email, $reply_email = null)
+	public function sendTemplatedEmail($template_name, $sender_email, $recipient_email, $reply_email = null)
 	{
+		$this->validateTemplateName($template_name);
+		$this->validateEmail($sender_email);
+		$recipient_email = $this->normalizeRecipientList($recipient_email);
+
 		if($reply_email === null) {
 			$reply_email = $sender_email;
+		} else {
+			$this->validateEmail($reply_email);
 		}
 
 		$result = $this->_sesClient->sendTemplatedEmail([
 			'Destination' => [
-				'ToAddresses' => $recipeint_email,
+				'ToAddresses' => $recipient_email,
 			],
 			'ReplyToAddresses' => [$reply_email],
 			'Source' => $sender_email,
@@ -348,18 +371,23 @@ class SES extends Model
 	 *
 	 * @param string $filter_name
 	 * @param string $ip_address_range
+	 * @param string $policy
 	 *
 	 * @return Result
 	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-filters.html#create-an-email-filter
 	 */
-	public function createEmailFilter($filter_name, $ip_address_range)
+	public function createEmailFilter($filter_name, $ip_address_range, $policy = 'Block')
 	{
+		$this->validateName($filter_name, 'SES receipt filter name');
+		$this->validateCidr($ip_address_range);
+		$this->validateReceiptFilterPolicy($policy);
+
 		$result = $this->_sesClient->createReceiptFilter([
 			'Filter' => [
 				'IpFilter' => [
 					'Cidr' => $ip_address_range,
-					'Policy' => 'Block|Allow',
+					'Policy' => $policy,
 				],
 				'Name' => $filter_name,
 			],
@@ -400,6 +428,8 @@ class SES extends Model
 	 */
 	public function deleteEmailFilter($filter_name)
 	{
+		$this->validateName($filter_name, 'SES receipt filter name');
+
 		$result = $this->_sesClient->deleteReceiptFilter([
 			'FilterName' => $filter_name,
 
@@ -421,6 +451,8 @@ class SES extends Model
 	 */
 	public function createReceiptRuleSet($name)
 	{
+		$this->validateName($name, 'SES receipt rule set name');
+
 		$result = $this->_sesClient->createReceiptRuleSet([
 			'RuleSetName' => $name,
 		]);
@@ -437,28 +469,38 @@ class SES extends Model
 	 * @param string $rule_name
 	 * @param string $rule_set_name
 	 * @param string $s3_bucket
+	 * @param array $recipients
 	 *
 	 * @return Result
 	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-rules.html#create-a-receipt-rule
 	 */
-	public function createReceiptRule($rule_name, $rule_set_name, $s3_bucket)
+	public function createReceiptRule($rule_name, $rule_set_name, $s3_bucket, array $recipients = [])
 	{
-		$result = $this->_sesClient->createReceiptRule([
-			'Rule' => [
-				'Actions' => [
-					[
-						'S3Action' => [
-							'BucketName' => $s3_bucket,
-						],
+		$this->validateName($rule_name, 'SES receipt rule name');
+		$this->validateName($rule_set_name, 'SES receipt rule set name');
+		$this->validateBucketName($s3_bucket);
+
+		$rule = [
+			'Actions' => [
+				[
+					'S3Action' => [
+						'BucketName' => $s3_bucket,
 					],
 				],
-				'Name' => $rule_name,
-				'ScanEnabled' => true,
-				'TlsPolicy' => 'Optional',
-				'Recipients' => ['<string>']
-                ],
-                'RuleSetName' =>  $rule_set_name,
+			],
+			'Name' => $rule_name,
+			'ScanEnabled' => true,
+			'TlsPolicy' => 'Optional',
+		];
+
+		if ($recipients !== []) {
+			$rule['Recipients'] = $this->normalizeRecipientList($recipients);
+		}
+
+		$result = $this->_sesClient->createReceiptRule([
+			'Rule' => $rule,
+			'RuleSetName' =>  $rule_set_name,
 		]);
 
 		/** @var Result $result */
@@ -477,6 +519,8 @@ class SES extends Model
 	 */
 	public function describeReceiptRuleSet($name)
 	{
+		$this->validateName($name, 'SES receipt rule set name');
+
 		$result = $this->_sesClient->describeReceiptRuleSet([
 			'RuleSetName' => $name,
 		]);
@@ -498,6 +542,9 @@ class SES extends Model
 	 */
 	public function describeReceiptRule($rule_name, $rule_set_name)
 	{
+		$this->validateName($rule_name, 'SES receipt rule name');
+		$this->validateName($rule_set_name, 'SES receipt rule set name');
+
 		$result = $this->_sesClient->describeReceiptRule([
 			'RuleName' => $rule_name,
 			'RuleSetName' => $rule_set_name,
@@ -538,13 +585,20 @@ class SES extends Model
 	 */
 	public function updateReceiptRule($rule_name, $rule_set_name, $lambda_arn, $sns_topic_arn)
 	{
+		$this->validateName($rule_name, 'SES receipt rule name');
+		$this->validateName($rule_set_name, 'SES receipt rule set name');
+		$this->validateLambdaArn($lambda_arn);
+		$this->validateSnsTopicArn($sns_topic_arn);
+
 		$result = $this->_sesClient->updateReceiptRule([
 			'Rule' => [
 				'Actions' => [
-					'LambdaAction' => [
-						'FunctionArn' => $lambda_arn,
-						'TopicArn' => $sns_topic_arn,
-					],
+					[
+						'LambdaAction' => [
+							'FunctionArn' => $lambda_arn,
+							'TopicArn' => $sns_topic_arn,
+						],
+					]
 				],
 				'Enabled' => true,
 				'Name' => $rule_name,
@@ -571,6 +625,8 @@ class SES extends Model
 	 */
 	public function deleteReceiptRuleSet($name)
 	{
+		$this->validateName($name, 'SES receipt rule set name');
+
 		$result = $this->_sesClient->deleteReceiptRuleSet([
 			'RuleSetName' => $name,
 		]);
@@ -591,6 +647,9 @@ class SES extends Model
 	 */
 	public function deleteReceiptRule($rule_name, $rule_set_name)
 	{
+		$this->validateName($rule_name, 'SES receipt rule name');
+		$this->validateName($rule_set_name, 'SES receipt rule set name');
+
 		$result = $this->_sesClient->deleteReceiptRule([
 			'RuleName' => $rule_name,
 			'RuleSetName' => $rule_set_name,
@@ -651,6 +710,19 @@ class SES extends Model
 	 */
 	public function createAuthorizedSender($identity, $policy, $policyName)
 	{
+		$this->validateIdentity($identity);
+		$this->validateName($policyName, 'SES policy name');
+
+		if (!is_string($policy) || trim($policy) === '') {
+			throw new InvalidArgumentException('SES policy must be a non-empty JSON string.');
+		}
+
+		json_decode($policy);
+
+		if (json_last_error() !== JSON_ERROR_NONE) {
+			throw new InvalidArgumentException('SES policy must be valid JSON.');
+		}
+
 		$result = $this->_sesClient->putIdentityPolicy([
 			'Identity' => $identity,
 			'Policy' => $policy,
@@ -674,6 +746,16 @@ class SES extends Model
 	 */
 	public function retrievePolicesForAuthorizedSender($identity, $policyNames)
 	{
+		$this->validateIdentity($identity);
+
+		if (!is_array($policyNames) || $policyNames === []) {
+			throw new InvalidArgumentException('SES policy names must be a non-empty array.');
+		}
+
+		foreach ($policyNames as $policyName) {
+			$this->validateName($policyName, 'SES policy name');
+		}
+
 		$result = $this->_sesClient->getIdentityPolicies([
 			'Identity' => $identity,
 			'PolicyNames' => $policyNames,
@@ -695,6 +777,8 @@ class SES extends Model
 	 */
 	public function listAuthorizedSenders($identity)
 	{
+		$this->validateIdentity($identity);
+
 		$result = $this->_sesClient->listIdentityPolicies([
 			'Identity' => $identity,
 		]);
@@ -716,6 +800,9 @@ class SES extends Model
 	 */
 	public function revokePermissionForAuthorizedSender($identity, $policyName)
 	{
+		$this->validateIdentity($identity);
+		$this->validateName($policyName, 'SES policy name');
+
 		$result = $this->_sesClient->deleteIdentityPolicy([
 			'Identity' => $identity,
 			'PolicyName' => $policyName,
@@ -723,5 +810,160 @@ class SES extends Model
 
 		/** @var Result $result */
 		return $result;
+	}
+
+	/**
+	 * @param string $email
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	protected function validateEmail($email)
+	{
+		if (!is_string($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+			throw new InvalidArgumentException('Invalid email address.');
+		}
+	}
+
+	/**
+	 * @param string $domain
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	protected function validateDomain($domain)
+	{
+		if (!is_string($domain) || !preg_match('/^(?=.{1,253}$)(?!-)(?:[A-Za-z0-9-]{1,63}\\.)+[A-Za-z]{2,63}$/', $domain)) {
+			throw new InvalidArgumentException('Invalid domain name.');
+		}
+	}
+
+	/**
+	 * @param string $identity
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	protected function validateIdentity($identity)
+	{
+		if (is_string($identity) && filter_var($identity, FILTER_VALIDATE_EMAIL)) {
+			return;
+		}
+
+		$this->validateDomain($identity);
+	}
+
+	/**
+	 * @param string $templateName
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	protected function validateTemplateName($templateName)
+	{
+		if (!is_string($templateName) || !preg_match('/^[A-Za-z0-9_-]{1,64}$/', $templateName)) {
+			throw new InvalidArgumentException('Invalid SES template name.');
+		}
+	}
+
+	/**
+	 * @param array|string $recipients
+	 *
+	 * @return array
+	 * @throws InvalidArgumentException
+	 */
+	protected function normalizeRecipientList($recipients)
+	{
+		if (is_string($recipients)) {
+			$recipients = [$recipients];
+		}
+
+		if (!is_array($recipients) || $recipients === []) {
+			throw new InvalidArgumentException('SES recipient list must be a non-empty array.');
+		}
+
+		foreach ($recipients as $recipient) {
+			$this->validateEmail($recipient);
+		}
+
+		return array_values($recipients);
+	}
+
+	/**
+	 * @param string $policy
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	protected function validateReceiptFilterPolicy($policy)
+	{
+		if (!in_array($policy, ['Allow', 'Block'], true)) {
+			throw new InvalidArgumentException('SES receipt filter policy must be Allow or Block.');
+		}
+	}
+
+	/**
+	 * @param string $name
+	 * @param string $label
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	protected function validateName($name, $label)
+	{
+		if (!is_string($name) || !preg_match('/^[A-Za-z0-9_-]{1,64}$/', $name)) {
+			throw new InvalidArgumentException($label . ' is invalid.');
+		}
+	}
+
+	/**
+	 * @param string $cidr
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	protected function validateCidr($cidr)
+	{
+		if (!is_string($cidr) || !preg_match('/^(.+)\\/(\\d{1,3})$/', $cidr, $matches)) {
+			throw new InvalidArgumentException('Invalid CIDR range.');
+		}
+
+		$ip = $matches[1];
+		$prefix = (int)$matches[2];
+		$isIpv4 = filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false;
+		$isIpv6 = filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false;
+
+		if ((!$isIpv4 && !$isIpv6) || ($isIpv4 && $prefix > 32) || ($isIpv6 && $prefix > 128)) {
+			throw new InvalidArgumentException('Invalid CIDR range.');
+		}
+	}
+
+	/**
+	 * @param string $bucketName
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	protected function validateBucketName($bucketName)
+	{
+		if (!is_string($bucketName) || !preg_match('/^(?!\\d+\\.\\d+\\.\\d+\\.\\d+$)(?!.*\\.\\.)(?!.*\\.-)(?!.*-\\.)[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$/', $bucketName)) {
+			throw new InvalidArgumentException('Invalid S3 bucket name.');
+		}
+	}
+
+	/**
+	 * @param string $lambdaArn
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	protected function validateLambdaArn($lambdaArn)
+	{
+		if (!is_string($lambdaArn) || !preg_match('/^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\d{12}:function:.+$/', $lambdaArn)) {
+			throw new InvalidArgumentException('Invalid Lambda ARN.');
+		}
+	}
+
+	/**
+	 * @param string $topicArn
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	protected function validateSnsTopicArn($topicArn)
+	{
+		if (!is_string($topicArn) || !preg_match('/^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\d{12}:[A-Za-z0-9_-]{1,256}(\\.fifo)?$/', $topicArn)) {
+			throw new InvalidArgumentException('Invalid SNS topic ARN.');
+		}
 	}
 }

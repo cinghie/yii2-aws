@@ -16,6 +16,7 @@ use Aws\Exception\AwsException;
 use Aws\Result;
 use Aws\Sdk;
 use Aws\Sns\SnsClient;
+use InvalidArgumentException;
 use Yii;
 use yii\base\Model;
 
@@ -90,6 +91,8 @@ class SNS extends Model
 	 */
 	public function createTopic($topicName)
 	{
+		$this->validateTopicName($topicName);
+
 		$result = $this->_snsClient->createTopic([
 			'Name' => $topicName,
 		]);
@@ -131,6 +134,8 @@ class SNS extends Model
 	 */
 	public function deleteTopic($topicArn)
 	{
+		$this->validateSnsTopicArn($topicArn);
+
 		$result = $this->_snsClient->deleteTopic([
 			'TopicArn' => $topicArn,
 		]);
@@ -153,6 +158,8 @@ class SNS extends Model
 	 */
 	public function getTopicAttributes($topicArn)
 	{
+		$this->validateSnsTopicArn($topicArn);
+
 		$result = $this->_snsClient->getTopicAttributes([
 			'TopicArn' => $topicArn,
 		]);
@@ -180,6 +187,16 @@ class SNS extends Model
 	 */
 	public function setTopicAttributes($attribute, $value, $topic)
 	{
+		$this->validateSnsTopicArn($topic);
+
+		if (!in_array($attribute, ['Policy', 'DisplayName', 'DeliveryPolicy'], true)) {
+			throw new InvalidArgumentException('SNS topic attribute must be Policy, DisplayName, or DeliveryPolicy.');
+		}
+
+		if (!is_string($value)) {
+			throw new InvalidArgumentException('SNS topic attribute value must be a string.');
+		}
+
 		$result = $this->_snsClient->setTopicAttributes([
 			'AttributeName' => $attribute,
 			'AttributeValue' => $value,
@@ -211,6 +228,10 @@ class SNS extends Model
 	 */
 	public function subscribeEmailToTopic($protocol, $endpoint, $topic)
 	{
+		$this->validateProtocol($protocol, ['email']);
+		$this->validateEmail($endpoint);
+		$this->validateSnsTopicArn($topic);
+
 		$result = $this->_snsClient->subscribe([
 			'Protocol' => $protocol,
 			'Endpoint' => $endpoint,
@@ -242,6 +263,14 @@ class SNS extends Model
 	 */
 	public function subscribeAppEndPointToTopic($protocol, $endpoint, $topic)
 	{
+		$this->validateProtocol($protocol, ['http', 'https']);
+
+		if (!filter_var($endpoint, FILTER_VALIDATE_URL)) {
+			throw new InvalidArgumentException('SNS application endpoint must be a valid URL.');
+		}
+
+		$this->validateSnsTopicArn($topic);
+
 		$result = $this->_snsClient->subscribe([
 			'Protocol' => $protocol,
 			'Endpoint' => $endpoint,
@@ -273,6 +302,14 @@ class SNS extends Model
 	 */
 	public function subscribeLambdaFunctionToTopic($protocol, $endpoint, $topic)
 	{
+		$this->validateProtocol($protocol, ['lambda']);
+
+		if (!is_string($endpoint) || !preg_match('/^arn:aws[a-zA-Z-]*:lambda:[a-z0-9-]+:\\d{12}:function:.+$/', $endpoint)) {
+			throw new InvalidArgumentException('SNS Lambda endpoint must be a valid Lambda ARN.');
+		}
+
+		$this->validateSnsTopicArn($topic);
+
 		$result = $this->_snsClient->subscribe([
 			'Protocol' => $protocol,
 			'Endpoint' => $endpoint,
@@ -305,6 +342,14 @@ class SNS extends Model
 	 */
 	public function subscribeTextSMSToTopic($protocol, $endpoint, $topic)
 	{
+		$this->validateProtocol($protocol, ['sms']);
+
+		if (!is_string($endpoint) || !preg_match('/^\\+[1-9]\\d{6,14}$/', $endpoint)) {
+			throw new InvalidArgumentException('SNS SMS endpoint must be a valid E.164 phone number.');
+		}
+
+		$this->validateSnsTopicArn($topic);
+
 		$result = $this->_snsClient->subscribe([
 			'Protocol' => $protocol,
 			'Endpoint' => $endpoint,
@@ -334,6 +379,12 @@ class SNS extends Model
 	 */
 	public function confirmSubscriptionToTopic($subscription_token, $topic)
 	{
+		if (!is_string($subscription_token) || trim($subscription_token) === '') {
+			throw new InvalidArgumentException('SNS subscription token must be a non-empty string.');
+		}
+
+		$this->validateSnsTopicArn($topic);
+
 		$result = $this->_snsClient->subscribe([
 			'Token' => $subscription_token,
 			'TopicArn' => $topic,
@@ -341,5 +392,54 @@ class SNS extends Model
 
 		/** @var Result $result */
 		return $result;
+	}
+
+	/**
+	 * @param string $topicName
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	protected function validateTopicName($topicName)
+	{
+		if (!is_string($topicName) || !preg_match('/^[A-Za-z0-9_-]{1,256}(\\.fifo)?$/', $topicName)) {
+			throw new InvalidArgumentException('Invalid SNS topic name.');
+		}
+	}
+
+	/**
+	 * @param string $topicArn
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	protected function validateSnsTopicArn($topicArn)
+	{
+		if (!is_string($topicArn) || !preg_match('/^arn:aws[a-zA-Z-]*:sns:[a-z0-9-]+:\\d{12}:[A-Za-z0-9_-]{1,256}(\\.fifo)?$/', $topicArn)) {
+			throw new InvalidArgumentException('Invalid SNS topic ARN.');
+		}
+	}
+
+	/**
+	 * @param string $email
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	protected function validateEmail($email)
+	{
+		if (!is_string($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+			throw new InvalidArgumentException('Invalid email address.');
+		}
+	}
+
+	/**
+	 * @param string $protocol
+	 * @param array $allowedProtocols
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	protected function validateProtocol($protocol, array $allowedProtocols)
+	{
+		if (!is_string($protocol) || !in_array($protocol, $allowedProtocols, true)) {
+			throw new InvalidArgumentException('Invalid SNS subscription protocol.');
+		}
 	}
 }

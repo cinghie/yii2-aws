@@ -16,6 +16,7 @@ use Aws\Exception\AwsException;
 use Aws\Result;
 use Aws\Sdk;
 use Aws\S3\S3Client;
+use InvalidArgumentException;
 use Yii;
 use yii\base\Model;
 
@@ -108,6 +109,8 @@ class S3 extends Model
 	 */
 	public function createBucket($bucketName)
 	{
+		$this->validateBucketName($bucketName);
+
 		$result = $this->_s3Client->createBucket([
 			'Bucket' => $bucketName,
 		]);
@@ -128,6 +131,16 @@ class S3 extends Model
 	 */
 	public function putObjectInBucket($bucketName, $key, $filePath)
 	{
+		$this->validateBucketName($bucketName);
+
+		if (!is_string($key) || trim($key) === '') {
+			throw new InvalidArgumentException('S3 object key must be a non-empty string.');
+		}
+
+		if (!is_string($filePath) || trim($filePath) === '') {
+			throw new InvalidArgumentException('S3 source file path must be a non-empty string.');
+		}
+
 		$result = $this->_s3Client->putObject([
 			'Bucket' => $bucketName,
 			'Key' => $key,
@@ -148,6 +161,8 @@ class S3 extends Model
 	 */
 	public function getAccessControlListPolicy($bucketName)
 	{
+		$this->validateBucketName($bucketName);
+
 		$result = $this->_s3Client->getBucketAcl([
 			'Bucket' => $bucketName
 		]);
@@ -186,6 +201,8 @@ class S3 extends Model
 	 */
 	public function getCorsConfiguration($bucketName)
 	{
+		$this->validateBucketName($bucketName);
+
 		$result = $this->_s3Client->getBucketCors([
 			'Bucket' => $bucketName
 		]);
@@ -209,5 +226,23 @@ class S3 extends Model
 		$result = $this->_s3Client->putBucketCors($array);
 
 		return $result;
+	}
+
+	/**
+	 * Validate S3 bucket name before calling AWS.
+	 *
+	 * @param string $bucketName
+	 *
+	 * @throws InvalidArgumentException
+	 */
+	protected function validateBucketName($bucketName)
+	{
+		if (!is_string($bucketName)) {
+			throw new InvalidArgumentException('S3 bucket name must be a string.');
+		}
+
+		if (!preg_match('/^(?!\\d+\\.\\d+\\.\\d+\\.\\d+$)(?!.*\\.\\.)(?!.*\\.-)(?!.*-\\.)[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$/', $bucketName)) {
+			throw new InvalidArgumentException('Invalid S3 bucket name.');
+		}
 	}
 }
