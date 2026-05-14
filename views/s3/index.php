@@ -1,8 +1,8 @@
 <?php
 
 /**
- * @var $buckets array
- * @var $s3Client Aws\S3\S3Client
+ * @var $buckets Aws\Result|null
+ * @var $s3Client Aws\S3\S3Client|null
  * @var $this yii\web\View
  */
 

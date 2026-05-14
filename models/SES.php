@@ -64,18 +64,14 @@ class SES extends Model
 	 * @param string $email
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-verify.html#verifying-email-addresses
 	 */
 	public function verifyEmailIdentity($email)
 	{
-		try {
-			$result = $this->_sesClient->verifyEmailIdentity([
-				'EmailAddress' => $email
-			]);
-			Yii::$app->session->setFlash('info', Yii::t('aws', 'Verification Identity Email was sent to email {0}',$email));
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->verifyEmailIdentity([
+			'EmailAddress' => $email
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -89,18 +85,14 @@ class SES extends Model
 	 * @param string $domain
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-verify.html#verify-an-email-domain
 	 */
 	public function verifyDomainIdentity($domain)
 	{
-		try {
-			$result = $this->_sesClient->verifyDomainIdentity([
-				'Domain' => $domain
-			]);
-			Yii::$app->session->setFlash('info', Yii::t('aws', 'Domain Identity {0} added correctly',$domain));
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->verifyDomainIdentity([
+			'Domain' => $domain
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -111,17 +103,14 @@ class SES extends Model
 	 * regardless of verification status, use the ListIdentities operation.
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-verify.html#list-email-addresses
 	 */
 	public function listIdentities()
 	{
-		try {
-			$result = $this->_sesClient->listIdentities([
-				'IdentityType' => 'EmailAddress'
-			]);
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->listIdentities([
+			'IdentityType' => 'EmailAddress'
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -132,17 +121,14 @@ class SES extends Model
 	 * regardless of verification status use the ListIdentities operation.
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-verify.html#list-email-domains
 	 */
 	public function listDomains()
 	{
-		try {
-			$result = $this->_sesClient->listIdentities([
-				'IdentityType' => 'Domain'
-			]);
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->listIdentities([
+			'IdentityType' => 'Domain'
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -155,18 +141,14 @@ class SES extends Model
 	 * @param string $email
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-verify.html#delete-an-email-address
 	 */
 	public function deleteEmail($email)
 	{
-		try {
-			$result = $this->_sesClient->deleteIdentity([
-				'Identity' => $email
-			]);
-			Yii::$app->session->setFlash('info', Yii::t('aws', 'Email {0} deleted from the list of identities',$email));
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->deleteIdentity([
+			'Identity' => $email
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -179,18 +161,14 @@ class SES extends Model
 	 * @param string $domain
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-verify.html#delete-an-email-domain
 	 */
 	public function deleteDomain($domain)
 	{
-		try {
-			$result = $this->_sesClient->deleteIdentity([
-				'Identity' => $domain
-			]);
-			Yii::$app->session->setFlash('info', Yii::t('aws', 'Domain {0} deleted from the list of identities',$domain));
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->deleteIdentity([
+			'Identity' => $domain
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -206,23 +184,19 @@ class SES extends Model
 	 * @param string $plaintext_body
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-verify.html#verifying-email-addresses
 	 */
 	public function createTemplate($template_name, $subject, $html_body, $plaintext_body)
 	{
-		try {
-			$result = $this->_sesClient->createTemplate([
-				'Template' => [
-					'HtmlPart' => $html_body,
-					'SubjectPart' => $subject,
-					'TemplateName' => $template_name,
-					'TextPart' => $plaintext_body,
-				],
-			]);
-			Yii::$app->session->setFlash('success', Yii::t('aws', 'Template {0} correctly created',$template_name));
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->createTemplate([
+			'Template' => [
+				'HtmlPart' => $html_body,
+				'SubjectPart' => $subject,
+				'TemplateName' => $template_name,
+				'TextPart' => $plaintext_body,
+			],
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -232,6 +206,7 @@ class SES extends Model
 	 * Demo Create Template
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 */
 	public function createDemoTemplate()
 	{
@@ -253,17 +228,14 @@ class SES extends Model
 	 * @param string $template_name
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-verify.html#verify-an-email-domain
 	 */
 	public function getTemplate($template_name)
 	{
-		try {
-			$result = $this->_sesClient->getTemplate([
-				'TemplateName' => $template_name
-			]);
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->getTemplate([
+			'TemplateName' => $template_name
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -276,16 +248,13 @@ class SES extends Model
 	 * @param integer $itemsNumber
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 */
 	public function listTemplates($itemsNumber = 25)
 	{
-		try {
-			$result = $this->_sesClient->listTemplates([
-				'MaxItems' => $itemsNumber
-			]);
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->listTemplates([
+			'MaxItems' => $itemsNumber
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -301,21 +270,18 @@ class SES extends Model
 	 * @param string $plaintext_body
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 */
 	public function updateTemplate($template_name, $subject, $html_body, $plaintext_body)
 	{
-		try {
-			$result = $this->_sesClient->updateTemplate([
-				'Template' => [
-					'HtmlPart' => $html_body,
-					'SubjectPart' => $subject,
-					'TemplateName' => $template_name,
-					'TextPart' => $plaintext_body,
-				],
-			]);
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->updateTemplate([
+			'Template' => [
+				'HtmlPart' => $html_body,
+				'SubjectPart' => $subject,
+				'TemplateName' => $template_name,
+				'TextPart' => $plaintext_body,
+			],
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -325,6 +291,7 @@ class SES extends Model
 	 * Demo Update Template
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 */
 	public function updateDemoTemplate()
 	{
@@ -346,18 +313,14 @@ class SES extends Model
 	 * @param string $template_name
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-verify.html#verify-an-email-domain
 	 */
 	public function deleteTemplate($template_name)
 	{
-		try {
-			$result = $this->_sesClient->deleteTemplate([
-				'TemplateName' => $template_name
-			]);
-			Yii::$app->session->setFlash('info', Yii::t('aws', 'Email Template deleted correctly'));
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->deleteTemplate([
+			'TemplateName' => $template_name
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -372,6 +335,7 @@ class SES extends Model
 	 * @param string $reply_email
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-template.html#send-an-email-with-a-template
 	 */
 	public function sendTemplatedEmail($template_name, $sender_email, $recipeint_email, $reply_email = null)
@@ -380,19 +344,15 @@ class SES extends Model
 			$reply_email = $sender_email;
 		}
 
-		try {
-			$result = $this->_sesClient->sendTemplatedEmail([
-				'Destination' => [
-					'ToAddresses' => $recipeint_email,
-				],
-				'ReplyToAddresses' => [$reply_email],
-				'Source' => $sender_email,
-				'Template' => $template_name,
-				'TemplateData' => '{ }'
-			]);
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->sendTemplatedEmail([
+			'Destination' => [
+				'ToAddresses' => $recipeint_email,
+			],
+			'ReplyToAddresses' => [$reply_email],
+			'Source' => $sender_email,
+			'Template' => $template_name,
+			'TemplateData' => '{ }'
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -406,23 +366,20 @@ class SES extends Model
 	 * @param string $ip_address_range
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-filters.html#create-an-email-filter
 	 */
 	public function createEmailFilter($filter_name, $ip_address_range)
 	{
-		try {
-			$result = $this->_sesClient->createReceiptFilter([
-				'Filter' => [
-					'IpFilter' => [
-						'Cidr' => $ip_address_range,
-						'Policy' => 'Block|Allow',
-					],
-					'Name' => $filter_name,
+		$result = $this->_sesClient->createReceiptFilter([
+			'Filter' => [
+				'IpFilter' => [
+					'Cidr' => $ip_address_range,
+					'Policy' => 'Block|Allow',
 				],
-			]);
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+				'Name' => $filter_name,
+			],
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -432,6 +389,7 @@ class SES extends Model
 	 * Create Demo Filter
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 */
 	public function createDemoEmailFilter()
 	{
@@ -446,15 +404,12 @@ class SES extends Model
 	 * use the ListReceiptFilters operation.
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-filters.html#list-all-email-filters
 	 */
 	public function listEmailFilters()
 	{
-		try {
-			$result = $this->_sesClient->listReceiptFilters();
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->listReceiptFilters();
 
 		/** @var Result $result */
 		return $result;
@@ -470,18 +425,15 @@ class SES extends Model
 	 * @param string $filter_name
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-filters.html#delete-an-email-filter
 	 */
 	public function deleteEmailFilter($filter_name)
 	{
-		try {
-			$result = $this->_sesClient->deleteReceiptFilter([
-				'FilterName' => $filter_name,
+		$result = $this->_sesClient->deleteReceiptFilter([
+			'FilterName' => $filter_name,
 
-			]);
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -494,17 +446,14 @@ class SES extends Model
 	 * @param string $name
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-rules.html#create-a-receipt-rule-set
 	 */
 	public function createReceiptRuleSet($name)
 	{
-		try {
-			$result = $this->_sesClient->createReceiptRuleSet([
-				'RuleSetName' => $name,
-			]);
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->createReceiptRuleSet([
+			'RuleSetName' => $name,
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -520,30 +469,27 @@ class SES extends Model
 	 * @param string $s3_bucket
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-rules.html#create-a-receipt-rule
 	 */
 	public function createReceiptRule($rule_name, $rule_set_name, $s3_bucket)
 	{
-		try {
-			$result = $this->_sesClient->createReceiptRule([
-				'Rule' => [
-					'Actions' => [
-						[
-							'S3Action' => [
-								'BucketName' => $s3_bucket,
-							],
+		$result = $this->_sesClient->createReceiptRule([
+			'Rule' => [
+				'Actions' => [
+					[
+						'S3Action' => [
+							'BucketName' => $s3_bucket,
 						],
 					],
-					'Name' => $rule_name,
-					'ScanEnabled' => true,
-					'TlsPolicy' => 'Optional',
-					'Recipients' => ['<string>']
+				],
+				'Name' => $rule_name,
+				'ScanEnabled' => true,
+				'TlsPolicy' => 'Optional',
+				'Recipients' => ['<string>']
                 ],
                 'RuleSetName' =>  $rule_set_name,
-			]);
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -553,6 +499,7 @@ class SES extends Model
 	 * Create Demo Receipt Rule
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 */
 	public function createDemoReceiptRule()
 	{
@@ -572,17 +519,14 @@ class SES extends Model
 	 * @param string $name
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-rules.html#describe-a-receipt-rule-set
 	 */
 	public function describeReceiptRuleSet($name)
 	{
-		try {
-			$result = $this->_sesClient->describeReceiptRuleSet([
-				'RuleSetName' => $name,
-			]);
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->describeReceiptRuleSet([
+			'RuleSetName' => $name,
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -596,18 +540,15 @@ class SES extends Model
 	 * @param string $rule_set_name
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-rules.html#describe-a-receipt-rule
 	 */
 	public function describeReceiptRule($rule_name, $rule_set_name)
 	{
-		try {
-			$result = $this->_sesClient->describeReceiptRule([
-				'RuleName' => $rule_name,
-				'RuleSetName' => $rule_set_name,
-			]);
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->describeReceiptRule([
+			'RuleName' => $rule_name,
+			'RuleSetName' => $rule_set_name,
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -618,15 +559,12 @@ class SES extends Model
 	 * use the ListReceiptRuleSets operation.
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-rules.html#list-all-receipt-rule-sets
 	 */
 	public function listReceiptRuleSets()
 	{
-		try {
-			$result = $this->_sesClient->listReceiptRuleSets();
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->listReceiptRuleSets();
 
 		/** @var Result $result */
 		return $result;
@@ -642,29 +580,26 @@ class SES extends Model
 	 * @param string $sns_topic_arn
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-rules.html#update-a-receipt-rule
 	 */
 	public function updateReceiptRule($rule_name, $rule_set_name, $lambda_arn, $sns_topic_arn)
 	{
-		try {
-			$result = $this->_sesClient->updateReceiptRule([
-				'Rule' => [
-					'Actions' => [
-						'LambdaAction' => [
-							'FunctionArn' => $lambda_arn,
-							'TopicArn' => $sns_topic_arn,
-						],
+		$result = $this->_sesClient->updateReceiptRule([
+			'Rule' => [
+				'Actions' => [
+					'LambdaAction' => [
+						'FunctionArn' => $lambda_arn,
+						'TopicArn' => $sns_topic_arn,
 					],
-					'Enabled' => true,
-					'Name' => $rule_name,
-					'ScanEnabled' => false,
-					'TlsPolicy' => 'Require',
 				],
-				'RuleSetName' => $rule_set_name,
-			]);
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+				'Enabled' => true,
+				'Name' => $rule_name,
+				'ScanEnabled' => false,
+				'TlsPolicy' => 'Require',
+			],
+			'RuleSetName' => $rule_set_name,
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -674,6 +609,7 @@ class SES extends Model
 	 * Update Demo Receipt Rule
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 */
 	public function updateDemoReceiptRule()
 	{
@@ -693,17 +629,14 @@ class SES extends Model
 	 * @param string $name
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-rules.html#delete-a-receipt-rule-set
 	 */
 	public function deleteReceiptRuleSet($name)
 	{
-		try {
-			$result = $this->_sesClient->deleteReceiptRuleSet([
-				'RuleSetName' => $name,
-			]);
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->deleteReceiptRuleSet([
+			'RuleSetName' => $name,
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -716,18 +649,15 @@ class SES extends Model
 	 * @param string $rule_set_name
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-rules.html#delete-a-receipt-rule
 	 */
 	public function deleteReceiptRule($rule_name, $rule_set_name)
 	{
-		try {
-			$result = $this->_sesClient->deleteReceiptRule([
-				'RuleName' => $rule_name,
-				'RuleSetName' => $rule_set_name,
-			]);
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->deleteReceiptRule([
+			'RuleName' => $rule_name,
+			'RuleSetName' => $rule_set_name,
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -739,19 +669,15 @@ class SES extends Model
 	 * For more information, see Managing Your Amazon SES Sending Limits.
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-send-email.html#check-your-sending-quota
 	 */
 	public function checkSendingQuota()
 	{
-		try {
-			$result = $this->_sesClient->getSendQuota();
-			$send_limit = $result['Max24HourSend'];
-			$sent = $result['SentLast24Hours'];
-			$available = $send_limit - $sent;
-			//Yii::$app->session->setFlash('success', Yii::t('aws','You can send {available} more messages in the next 24 hours'),['available' => $available]);
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->getSendQuota();
+		$send_limit = $result['Max24HourSend'];
+		$sent = $result['SentLast24Hours'];
+		$available = $send_limit - $sent;
 
 		/** @var Result $result */
 		return $result;
@@ -762,15 +688,12 @@ class SES extends Model
 	 * This example returns the number of delivery attempts, bounces, complaints, and rejected messages in 15-minute increments.
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-send-email.html#monitor-your-sending-activity
 	 */
 	public function getSendingStatistics()
 	{
-		try {
-			$result = $this->_sesClient->getSendStatistics();
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->getSendStatistics();
 
 		/** @var Result $result */
 		return $result;
@@ -786,19 +709,16 @@ class SES extends Model
 	 * @param string $policyName
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-sender-policy.html#create-an-authorized-sender
 	 */
 	public function createAuthorizedSender($identity, $policy, $policyName)
 	{
-		try {
-			$result = $this->_sesClient->putIdentityPolicy([
-				'Identity' => $identity,
-				'Policy' => $policy,
-				'PolicyName' => $policyName,
-			]);
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->putIdentityPolicy([
+			'Identity' => $identity,
+			'Policy' => $policy,
+			'PolicyName' => $policyName,
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -812,18 +732,15 @@ class SES extends Model
 	 * @param string $policyNames
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-sender-policy.html#retrieve-polices-for-an-authorized-sender
 	 */
 	public function retrievePolicesForAuthorizedSender($identity, $policyNames)
 	{
-		try {
-			$result = $this->_sesClient->getIdentityPolicies([
-				'Identity' => $identity,
-				'PolicyNames' => $policyNames,
-			]);
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->getIdentityPolicies([
+			'Identity' => $identity,
+			'PolicyNames' => $policyNames,
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -836,17 +753,14 @@ class SES extends Model
 	 * @param string $identity
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-sender-policy.html#list-authorized-senders
 	 */
 	public function listAuthorizedSenders($identity)
 	{
-		try {
-			$result = $this->_sesClient->listIdentityPolicies([
-				'Identity' => $identity,
-			]);
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->listIdentityPolicies([
+			'Identity' => $identity,
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -860,18 +774,15 @@ class SES extends Model
 	 * @param string $policyName
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/ses-sender-policy.html#revoke-permission-for-an-authorized-sender
 	 */
 	public function revokePermissionForAuthorizedSender($identity, $policyName)
 	{
-		try {
-			$result = $this->_sesClient->deleteIdentityPolicy([
-				'Identity' => $identity,
-				'PolicyName' => $policyName,
-			]);
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_sesClient->deleteIdentityPolicy([
+			'Identity' => $identity,
+			'PolicyName' => $policyName,
+		]);
 
 		/** @var Result $result */
 		return $result;

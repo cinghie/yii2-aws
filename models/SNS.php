@@ -64,17 +64,13 @@ class SNS extends Model
 	 * @param string $topicName
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 */
 	public function createTopic($topicName)
 	{
-		try {
-			$result = $this->_snsClient->createTopic([
-				'Name' => $topicName,
-			]);
-			Yii::$app->session->setFlash('success', Yii::t('aws', 'SNS Topic {0} added correctly', $topicName));
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_snsClient->createTopic([
+			'Name' => $topicName,
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -84,16 +80,15 @@ class SNS extends Model
 	 * List Your Topics
 	 *
 	 * To list up to 100 existing topics in the current AWS Region, use the ListTopics operation.
+	 *
+	 * @return Result
+	 * @throws AwsException
 	 */
 	public function listYourTopics()
 	{
-		try {
-			$result = $this->_snsClient->listTopics([
+		$result = $this->_snsClient->listTopics([
 
-			]);
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -110,17 +105,13 @@ class SNS extends Model
 	 * @example $topicArn = 'arn:aws:sns:us-east-1:111122223333:MyTopic'
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 */
 	public function deleteTopic($topicArn)
 	{
-		try {
-			$result = $this->_snsClient->deleteTopic([
-				'TopicArn' => $topicArn,
-			]);
-			Yii::$app->session->setFlash('success', Yii::t('aws', 'SNS Topic {0} deleted correctly', $topicArn));
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_snsClient->deleteTopic([
+			'TopicArn' => $topicArn,
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -136,16 +127,13 @@ class SNS extends Model
 	 * @example $topicArn = 'arn:aws:sns:us-east-1:111122223333:MyTopic'
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 */
 	public function getTopicAttributes($topicArn)
 	{
-		try {
-			$result = $this->_snsClient->getTopicAttributes([
-				'TopicArn' => $topicArn,
-			]);
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_snsClient->getTopicAttributes([
+			'TopicArn' => $topicArn,
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -166,19 +154,15 @@ class SNS extends Model
 	 * @example $topic = 'arn:aws:sns:us-east-1:111122223333:MyTopic';
 	 *
 	 * @return Result
+	 * @throws AwsException
 	 */
 	public function setTopicAttributes($attribute, $value, $topic)
 	{
-		try {
-			$result = $this->_snsClient->setTopicAttributes([
-				'AttributeName' => $attribute,
-				'AttributeValue' => $value,
-				'TopicArn' => $topic,
-			]);
-			Yii::$app->session->setFlash('success', Yii::t('aws', 'SNS Topic Attribute setted correctly'));
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_snsClient->setTopicAttributes([
+			'AttributeName' => $attribute,
+			'AttributeValue' => $value,
+			'TopicArn' => $topic,
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -199,20 +183,18 @@ class SNS extends Model
 	 * @example $protocol = 'email';
 	 * @example $endpoint = 'sample@example.com';
 	 * @example $topic = 'arn:aws:sns:us-east-1:111122223333:MyTopic';
+	 *
+	 * @return Result
+	 * @throws AwsException
 	 */
 	public function subscribeEmailToTopic($protocol = 'email', $endpoint = 'sample@example.com', $topic = 'arn:aws:sns:us-east-1:111122223333:MyTopic')
 	{
-		try {
-			$result = $this->_snsClient->subscribe([
-				'Protocol' => $protocol,
-				'Endpoint' => $endpoint,
-				'ReturnSubscriptionArn' => true,
-				'TopicArn' => $topic,
-			]);
-			Yii::$app->session->setFlash('success', Yii::t('aws', 'Email {0} subscribed to Topic correctly', $endpoint));
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_snsClient->subscribe([
+			'Protocol' => $protocol,
+			'Endpoint' => $endpoint,
+			'ReturnSubscriptionArn' => true,
+			'TopicArn' => $topic,
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -232,20 +214,18 @@ class SNS extends Model
 	 * @example $protocol = 'https';
 	 * @example $endpoint = 'https://';
 	 * @example $topic = 'arn:aws:sns:us-east-1:111122223333:MyTopic';
+	 *
+	 * @return Result
+	 * @throws AwsException
 	 */
 	public function subscribeAppEndPointToTopic($protocol = 'https', $endpoint = 'https://', $topic = 'arn:aws:sns:us-east-1:111122223333:MyTopic')
 	{
-		try {
-			$result = $this->_snsClient->subscribe([
-				'Protocol' => $protocol,
-				'Endpoint' => $endpoint,
-				'ReturnSubscriptionArn' => true,
-				'TopicArn' => $topic,
-			]);
-			Yii::$app->session->setFlash('success', Yii::t('aws', 'Email {0} subscribed to Topic correctly', $endpoint));
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_snsClient->subscribe([
+			'Protocol' => $protocol,
+			'Endpoint' => $endpoint,
+			'ReturnSubscriptionArn' => true,
+			'TopicArn' => $topic,
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -265,20 +245,18 @@ class SNS extends Model
 	 * @example $protocol = 'lambda';
 	 * @example $endpoint = 'arn:aws:lambda:us-east-1:123456789023:function:messageStore';
 	 * @example $topic = 'arn:aws:sns:us-east-1:111122223333:MyTopic';
+	 *
+	 * @return Result
+	 * @throws AwsException
 	 */
 	public function subscribeLambdaFunctionToTopic($protocol = 'lambda', $endpoint = 'arn:aws:lambda:us-east-1:123456789023:function:messageStore', $topic = 'arn:aws:sns:us-east-1:111122223333:MyTopic')
 	{
-		try {
-			$result = $this->_snsClient->subscribe([
-				'Protocol' => $protocol,
-				'Endpoint' => $endpoint,
-				'ReturnSubscriptionArn' => true,
-				'TopicArn' => $topic,
-			]);
-			Yii::$app->session->setFlash('success', Yii::t('aws', 'Email {0} subscribed to Topic correctly', $endpoint));
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_snsClient->subscribe([
+			'Protocol' => $protocol,
+			'Endpoint' => $endpoint,
+			'ReturnSubscriptionArn' => true,
+			'TopicArn' => $topic,
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -299,20 +277,18 @@ class SNS extends Model
 	 * @example $protocol = 'sms';
 	 * @example $endpoint = '+1XXX5550100';
 	 * @example $topic = 'arn:aws:sns:us-east-1:111122223333:MyTopic';
+	 *
+	 * @return Result
+	 * @throws AwsException
 	 */
 	public function subscribeTextSMSToTopic($protocol = 'sms', $endpoint = '+1XXX5550100', $topic = 'arn:aws:sns:us-east-1:111122223333:MyTopic')
 	{
-		try {
-			$result = $this->_snsClient->subscribe([
-				'Protocol' => $protocol,
-				'Endpoint' => $endpoint,
-				'ReturnSubscriptionArn' => true,
-				'TopicArn' => $topic,
-			]);
-			Yii::$app->session->setFlash('success', Yii::t('aws', 'Email {0} subscribed to Topic correctly', $endpoint));
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_snsClient->subscribe([
+			'Protocol' => $protocol,
+			'Endpoint' => $endpoint,
+			'ReturnSubscriptionArn' => true,
+			'TopicArn' => $topic,
+		]);
 
 		/** @var Result $result */
 		return $result;
@@ -330,18 +306,16 @@ class SNS extends Model
 	 *
 	 * @example $subscription_token = 'arn:aws:sns:us-east-1:111122223333:MyTopic:123456-abcd-12ab-1234-12ba3dc1234a';
 	 * @example $topic = 'arn:aws:sns:us-east-1:111122223333:MyTopic';
+	 *
+	 * @return Result
+	 * @throws AwsException
 	 */
 	public function confirmSubscriptionToTopic($subscription_token, $topic)
 	{
-		try {
-			$result = $this->_snsClient->subscribe([
-				'Token' => $subscription_token,
-				'TopicArn' => $topic,
-			]);
-			Yii::$app->session->setFlash('success', Yii::t('aws', 'Email {0} subscribed to Topic correctly', $endpoint));
-		} catch (AwsException $e) {
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_snsClient->subscribe([
+			'Token' => $subscription_token,
+			'TopicArn' => $topic,
+		]);
 
 		/** @var Result $result */
 		return $result;

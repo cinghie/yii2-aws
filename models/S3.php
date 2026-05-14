@@ -64,17 +64,13 @@ class S3 extends Model
 	/**
 	 * Get Buckets
 	 *
-	 * @return Result || array
+	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples-creating-buckets.html#list-buckets
 	 */
 	public function getBuckets()
 	{
-		try {
-			$buckets = $this->_s3Client->listBuckets();
-		} catch (AwsException $e) {
-			$buckets = [];
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$buckets = $this->_s3Client->listBuckets();
 
 		return $buckets;
 	}
@@ -84,19 +80,15 @@ class S3 extends Model
 	 *
 	 * @param string $bucketName
 	 *
-	 * @return Result || array
+	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples-creating-buckets.html#create-a-bucket
 	 */
 	public function createBucket($bucketName)
 	{
-		try {
-			$result = $this->_s3Client->createBucket([
-				'Bucket' => $bucketName,
-			]);
-		} catch (AwsException $e) {
-			$result = [];
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_s3Client->createBucket([
+			'Bucket' => $bucketName,
+		]);
 
 		return $result;
 	}
@@ -108,21 +100,17 @@ class S3 extends Model
 	 * @param string $key
 	 * @param string $filePath
 	 *
-	 * @return Result || array
+	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples-creating-buckets.html#put-an-object-in-a-bucket
 	 */
 	public function putObjectInBucket($bucketName, $key, $filePath)
 	{
-		try {
-			$result = $this->_s3Client->putObject([
-				'Bucket' => $bucketName,
-				'Key' => $key,
-				'SourceFile' => $filePath,
-			]);
-		} catch (AwsException $e) {
-			$result = [];
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_s3Client->putObject([
+			'Bucket' => $bucketName,
+			'Key' => $key,
+			'SourceFile' => $filePath,
+		]);
 
 		return $result;
 	}
@@ -132,19 +120,15 @@ class S3 extends Model
 	 *
 	 * @param string $bucketName
 	 *
-	 * @return Result || array
+	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples-access-permissions.html
 	 */
 	public function getAccessControlListPolicy($bucketName)
 	{
-		try {
-			$result = $this->_s3Client->getBucketAcl([
-				'Bucket' => $bucketName
-			]);
-		} catch (AwsException $e) {
-			$result = [];
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_s3Client->getBucketAcl([
+			'Bucket' => $bucketName
+		]);
 
 		return $result;
 	}
@@ -154,17 +138,13 @@ class S3 extends Model
 	 *
 	 * @param array $params
 	 *
-	 * @return Result || array
+	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples-access-permissions.html
 	 */
 	public function setAccessControlListPolicy($params)
 	{
-		try {
-			$result = $this->_s3Client->putBucketAcl($params);
-		} catch (AwsException $e) {
-			$result = [];
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_s3Client->putBucketAcl($params);
 
 		return $result;
 	}
@@ -178,19 +158,15 @@ class S3 extends Model
 	 *
 	 * @param string $bucketName
 	 *
-	 * @return Result || array
+	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples-configuring-a-bucket.html#get-the-cors-configuration
 	 */
 	public function getCorsConfiguration($bucketName)
 	{
-		try {
-			$result = $this->_s3Client->getBucketCors([
-				'Bucket' => $bucketName
-			]);
-		} catch (AwsException $e) {
-			$result = [];
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_s3Client->getBucketCors([
+			'Bucket' => $bucketName
+		]);
 
 		return $result;
 	}
@@ -202,17 +178,13 @@ class S3 extends Model
 	 *
 	 * @param array $array
 	 *
-	 * @return Result || array
+	 * @return Result
+	 * @throws AwsException
 	 * @see https://docs.aws.amazon.com/en_us/sdk-for-php/v3/developer-guide/s3-examples-configuring-a-bucket.html#set-the-cors-configuration
 	 */
 	public function setCORSConfiguration($array)
 	{
-		try {
-			$result = $this->_s3Client->putBucketCors($array);
-		} catch (AwsException $e) {
-			$result = [];
-			Yii::$app->session->setFlash('error', $e->getMessage());
-		}
+		$result = $this->_s3Client->putBucketCors($array);
 
 		return $result;
 	}

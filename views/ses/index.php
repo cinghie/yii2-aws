@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @var $sesClient Aws\Ses\SesClient
+ * @var $sesClient Aws\Ses\SesClient|null
  * @var $this yii\web\View
  */
 

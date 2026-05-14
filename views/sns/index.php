@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @var $snsClient Aws\Sns\SnsClient
+ * @var $snsClient Aws\Sns\SnsClient|null
  * @var $this yii\web\View
  */
 

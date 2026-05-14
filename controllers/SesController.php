@@ -12,6 +12,7 @@
 
 namespace cinghie\aws\controllers;
 
+use Aws\Exception\AwsException;
 use RuntimeException;
 use Yii;
 use cinghie\aws\models\SES;
@@ -52,8 +53,14 @@ class SesController extends Controller
 	 */
     public function actionIndex()
     {
-	    $ses = new SES();
-	    $sesClient = $ses->getSesClient();
+	    $sesClient = null;
+
+	    try {
+		    $ses = new SES();
+		    $sesClient = $ses->getSesClient();
+	    } catch (AwsException $e) {
+		    Yii::$app->session->setFlash('error', $e->getAwsErrorMessage() ?: $e->getMessage());
+	    }
 
 	    return $this->render('index',[
 		    'sesClient' => $sesClient

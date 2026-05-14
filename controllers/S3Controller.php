@@ -12,6 +12,7 @@
 
 namespace cinghie\aws\controllers;
 
+use Aws\Exception\AwsException;
 use RuntimeException;
 use Yii;
 use cinghie\aws\models\S3;
@@ -52,9 +53,16 @@ class S3Controller extends Controller
 	 */
     public function actionIndex()
     {
-	    $s3 = new S3();
-	    $s3Client = $s3->getS3Client();
-	    $buckets  = $s3->getBuckets();
+	    $s3Client = null;
+	    $buckets = null;
+
+	    try {
+		    $s3 = new S3();
+		    $s3Client = $s3->getS3Client();
+		    $buckets  = $s3->getBuckets();
+	    } catch (AwsException $e) {
+		    Yii::$app->session->setFlash('error', $e->getAwsErrorMessage() ?: $e->getMessage());
+	    }
 
         return $this->render('index',[
         	's3Client' => $s3Client,

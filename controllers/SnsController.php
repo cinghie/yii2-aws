@@ -12,6 +12,7 @@
 
 namespace cinghie\aws\controllers;
 
+use Aws\Exception\AwsException;
 use RuntimeException;
 use Yii;
 use cinghie\aws\models\SNS;
@@ -52,8 +53,14 @@ class SnsController extends Controller
 	 */
 	public function actionIndex()
 	{
-		$sns = new SNS();
-		$snsClient = $sns->getSNSClient();
+		$snsClient = null;
+
+		try {
+			$sns = new SNS();
+			$snsClient = $sns->getSNSClient();
+		} catch (AwsException $e) {
+			Yii::$app->session->setFlash('error', $e->getAwsErrorMessage() ?: $e->getMessage());
+		}
 
 		return $this->render('index',[
 			'snsClient' => $snsClient
