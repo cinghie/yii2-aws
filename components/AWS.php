@@ -13,7 +13,6 @@
 namespace cinghie\aws\components;
 
 use Aws\Sdk;
-use Yii;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 
@@ -27,24 +26,66 @@ use yii\base\InvalidConfigException;
 class AWS extends Component
 {
 	/**
-	 * @var string $accessKey
+	 * @var string|null $accessKey
 	 */
 	public $accessKey;
 
 	/**
-	 * @var string $region
+	 * @var string|null $region
 	 */
 	public $region;
 
 	/**
-	 * @var string $secretKey
+	 * @var string|null $secretKey
 	 */
 	public $secretKey;
 
 	/**
-	 * @var string $secretKey
+	 * @var string $version
 	 */
-	public $version;
+	public $version = 'latest';
+
+	/**
+	 * @var array|callable|null $credentials
+	 */
+	public $credentials;
+
+	/**
+	 * @var string|null $profile
+	 */
+	public $profile;
+
+	/**
+	 * @var string|null $endpoint
+	 */
+	public $endpoint;
+
+	/**
+	 * @var bool|null $usePathStyleEndpoint
+	 */
+	public $usePathStyleEndpoint;
+
+	/**
+	 * @var array $http
+	 */
+	public $http = [];
+
+	/**
+	 * @var int|array|null $retries
+	 */
+	public $retries;
+
+	/**
+	 * @var bool|resource|null $debug
+	 */
+	public $debug;
+
+	/**
+	 * Additional options passed directly to Aws\Sdk.
+	 *
+	 * @var array
+	 */
+	public $sdkOptions = [];
 
 	/**
 	 * @var Sdk $_aws
@@ -56,45 +97,22 @@ class AWS extends Component
 	 *
 	 * @param array $config
 	 *
-	 * @throws InvalidConfigException
 	 */
 	public function __construct(array $config = [])
 	{
-		if(!isset($config['accessKey']) || !$config['accessKey']) {
-			throw new InvalidConfigException(Yii::t('aws', 'AWS Access Key missing!'));
-		}
-
-		if(!isset($config['secretKey']) || !$config['secretKey']) {
-			throw new InvalidConfigException(Yii::t('aws', 'AWS Secret Key missing!'));
-		}
-
-		if(!isset($config['region']) || !$config['region']) {
-			throw new InvalidConfigException(Yii::t('aws', 'AWS Region missing!'));
-		}
-
-		$this->accessKey = $config['accessKey'];
-		$this->secretKey = $config['secretKey'];
-		$this->region = $config['region'];
-		$this->version = $config['version'] ?: 'latest';
-
 		parent::__construct($config);
 	}
 
 	/**
 	 * AWS init
+	 *
+	 * @throws InvalidConfigException
 	 */
 	public function init()
 	{
-		$this->_aws = new Sdk([
-			'credentials' => array(
-				'key' => $this->accessKey,
-				'secret' => $this->secretKey,
-			),
-			'region' => $this->region,
-			'version' => $this->version,
-		]);
-
 		parent::init();
+
+		$this->_aws = new Sdk($this->buildSdkConfig());
 	}
 
 	/**
@@ -105,5 +123,60 @@ class AWS extends Component
 	public function getSdk()
 	{
 		return $this->_aws;
+	}
+
+	/**
+	 * Build AWS SDK configuration.
+	 *
+	 * @return array
+	 * @throws InvalidConfigException
+	 */
+	protected function buildSdkConfig()
+	{
+		$config = $this->sdkOptions;
+		$config['version'] = $this->version;
+
+		if ($this->region !== null && $this->region !== '') {
+			$config['region'] = $this->region;
+		}
+
+		if ($this->credentials !== null) {
+			$config['credentials'] = $this->credentials;
+		} elseif ($this->accessKey || $this->secretKey) {
+			if (!$this->accessKey || !$this->secretKey) {
+				throw new InvalidConfigException('Both AWS accessKey and secretKey must be configured, or neither of them.');
+			}
+
+			$config['credentials'] = [
+				'key' => $this->accessKey,
+				'secret' => $this->secretKey,
+			];
+		}
+
+		if ($this->profile !== null && $this->profile !== '') {
+			$config['profile'] = $this->profile;
+		}
+
+		if ($this->endpoint !== null && $this->endpoint !== '') {
+			$config['endpoint'] = $this->endpoint;
+		}
+
+		if ($this->usePathStyleEndpoint !== null) {
+			$config['use_path_style_endpoint'] = $this->usePathStyleEndpoint;
+		}
+
+		if ($this->http !== []) {
+			$config['http'] = $this->http;
+		}
+
+		if ($this->retries !== null) {
+			$config['retries'] = $this->retries;
+		}
+
+		if ($this->debug !== null) {
+			$config['debug'] = $this->debug;
+		}
+
+		return $config;
 	}
 }
