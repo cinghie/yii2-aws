@@ -56,7 +56,7 @@ class SesController extends Controller
 	    $sesClient = null;
 
 	    try {
-		    $ses = new SES();
+		    $ses = Yii::createObject(SES::class);
 		    $sesClient = $ses->getSesClient();
 	    } catch (AwsException $e) {
 		    Yii::$app->session->setFlash('error', $e->getAwsErrorMessage() ?: $e->getMessage());

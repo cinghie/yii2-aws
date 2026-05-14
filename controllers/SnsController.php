@@ -56,7 +56,7 @@ class SnsController extends Controller
 		$snsClient = null;
 
 		try {
-			$sns = new SNS();
+			$sns = Yii::createObject(SNS::class);
 			$snsClient = $sns->getSNSClient();
 		} catch (AwsException $e) {
 			Yii::$app->session->setFlash('error', $e->getAwsErrorMessage() ?: $e->getMessage());

@@ -41,14 +41,26 @@ class S3 extends Model
 
 	/**
 	 * S3 constructor
+	 *
+	 * @param array $config
 	 */
-	public function __construct()
+	public function __construct(array $config = [])
 	{
-		/** @var Sdk $sdk  */
-		$sdk = Yii::$app->aws->sdk;
-		$this->_s3Client = $sdk->createS3();
+		parent::__construct($config);
+	}
 
-		parent::__construct();
+	/**
+	 * @inheritdoc
+	 */
+	public function init()
+	{
+		parent::init();
+
+		if ($this->_s3Client === null) {
+			/** @var Sdk $sdk  */
+			$sdk = Yii::$app->aws->sdk;
+			$this->_s3Client = $sdk->createS3();
+		}
 	}
 
 	/**
@@ -59,6 +71,16 @@ class S3 extends Model
 	public function getS3Client()
 	{
 		return $this->_s3Client;
+	}
+
+	/**
+	 * Set S3 Client
+	 *
+	 * @param S3Client $s3Client
+	 */
+	public function setS3Client(S3Client $s3Client)
+	{
+		$this->_s3Client = $s3Client;
 	}
 
 	/**

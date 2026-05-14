@@ -57,7 +57,7 @@ class S3Controller extends Controller
 	    $buckets = null;
 
 	    try {
-		    $s3 = new S3();
+		    $s3 = Yii::createObject(S3::class);
 		    $s3Client = $s3->getS3Client();
 		    $buckets  = $s3->getBuckets();
 	    } catch (AwsException $e) {

@@ -36,14 +36,26 @@ class SES extends Model
 
 	/**
 	 * SES constructor
+	 *
+	 * @param array $config
 	 */
-	public function __construct()
+	public function __construct(array $config = [])
 	{
-		/** @var Sdk $sdk  */
-		$sdk = Yii::$app->aws->sdk;
-		$this->_sesClient = $sdk->createSes();
+		parent::__construct($config);
+	}
 
-		parent::__construct();
+	/**
+	 * @inheritdoc
+	 */
+	public function init()
+	{
+		parent::init();
+
+		if ($this->_sesClient === null) {
+			/** @var Sdk $sdk  */
+			$sdk = Yii::$app->aws->sdk;
+			$this->_sesClient = $sdk->createSes();
+		}
 	}
 
 	/**
@@ -54,6 +66,16 @@ class SES extends Model
 	public function getSesClient()
 	{
 		return $this->_sesClient;
+	}
+
+	/**
+	 * Set SES Client
+	 *
+	 * @param SesClient $sesClient
+	 */
+	public function setSesClient(SesClient $sesClient)
+	{
+		$this->_sesClient = $sesClient;
 	}
 
 	/**

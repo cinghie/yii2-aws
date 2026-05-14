@@ -35,14 +35,26 @@ class SNS extends Model
 
 	/**
 	 * SNS constructor
+	 *
+	 * @param array $config
 	 */
-	public function __construct()
+	public function __construct(array $config = [])
 	{
-		/** @var Sdk $sdk  */
-		$sdk = Yii::$app->aws->sdk;
-		$this->_snsClient = $sdk->createSns();
+		parent::__construct($config);
+	}
 
-		parent::__construct();
+	/**
+	 * @inheritdoc
+	 */
+	public function init()
+	{
+		parent::init();
+
+		if ($this->_snsClient === null) {
+			/** @var Sdk $sdk  */
+			$sdk = Yii::$app->aws->sdk;
+			$this->_snsClient = $sdk->createSns();
+		}
 	}
 
 	/**
@@ -53,6 +65,16 @@ class SNS extends Model
 	public function getSnsClient()
 	{
 		return $this->_snsClient;
+	}
+
+	/**
+	 * Set SNS Client
+	 *
+	 * @param SnsClient $snsClient
+	 */
+	public function setSnsClient(SnsClient $snsClient)
+	{
+		$this->_snsClient = $snsClient;
 	}
 
 	/**
