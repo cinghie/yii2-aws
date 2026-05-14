@@ -209,7 +209,7 @@ class SNS extends Model
 	 * @return Result
 	 * @throws AwsException
 	 */
-	public function subscribeEmailToTopic($protocol = 'email', $endpoint = 'sample@example.com', $topic = 'arn:aws:sns:us-east-1:111122223333:MyTopic')
+	public function subscribeEmailToTopic($protocol, $endpoint, $topic)
 	{
 		$result = $this->_snsClient->subscribe([
 			'Protocol' => $protocol,
@@ -240,7 +240,7 @@ class SNS extends Model
 	 * @return Result
 	 * @throws AwsException
 	 */
-	public function subscribeAppEndPointToTopic($protocol = 'https', $endpoint = 'https://', $topic = 'arn:aws:sns:us-east-1:111122223333:MyTopic')
+	public function subscribeAppEndPointToTopic($protocol, $endpoint, $topic)
 	{
 		$result = $this->_snsClient->subscribe([
 			'Protocol' => $protocol,
@@ -271,7 +271,7 @@ class SNS extends Model
 	 * @return Result
 	 * @throws AwsException
 	 */
-	public function subscribeLambdaFunctionToTopic($protocol = 'lambda', $endpoint = 'arn:aws:lambda:us-east-1:123456789023:function:messageStore', $topic = 'arn:aws:sns:us-east-1:111122223333:MyTopic')
+	public function subscribeLambdaFunctionToTopic($protocol, $endpoint, $topic)
 	{
 		$result = $this->_snsClient->subscribe([
 			'Protocol' => $protocol,
@@ -303,7 +303,7 @@ class SNS extends Model
 	 * @return Result
 	 * @throws AwsException
 	 */
-	public function subscribeTextSMSToTopic($protocol = 'sms', $endpoint = '+1XXX5550100', $topic = 'arn:aws:sns:us-east-1:111122223333:MyTopic')
+	public function subscribeTextSMSToTopic($protocol, $endpoint, $topic)
 	{
 		$result = $this->_snsClient->subscribe([
 			'Protocol' => $protocol,

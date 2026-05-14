@@ -225,25 +225,6 @@ class SES extends Model
 	}
 
 	/**
-	 * Demo Create Template
-	 *
-	 * @return Result
-	 * @throws AwsException
-	 */
-	public function createDemoTemplate()
-	{
-		$template_name = 'Template_Name';
-		$html_body = '<h1>AWS Amazon Simple Email Service Test Email</h1>' .
-			'<p>This email was sent with <a href="https://aws.amazon.com/ses/">' .
-			'Amazon SES</a> using the <a href="https://aws.amazon.com/sdk-for-php/">' .
-			'AWS SDK for PHP</a>.</p>';
-		$subject = 'Amazon SES test (AWS SDK for PHP)';
-		$plaintext_body = 'This email was send with Amazon SES using the AWS SDK for PHP.';
-
-		return $this->createTemplate($template_name, $subject, $html_body, $plaintext_body);
-	}
-
-	/**
 	 * To view the content for an existing email template including the subject line, HTML body, and plain text, use the GetTemplate operation.
 	 * Only TemplateName is required.
 	 *
@@ -307,25 +288,6 @@ class SES extends Model
 
 		/** @var Result $result */
 		return $result;
-	}
-
-	/**
-	 * Demo Update Template
-	 *
-	 * @return Result
-	 * @throws AwsException
-	 */
-	public function updateDemoTemplate()
-	{
-		$template_name = 'Template_Name';
-		$html_body = '<h1>AWS Amazon Simple Email Service Test Email Updated!</h1>' .
-			'<p>This email was sent with <a href="https://aws.amazon.com/ses/">' .
-			'Amazon SES</a> using the <a href="https://aws.amazon.com/sdk-for-php/">' .
-			'AWS SDK for PHP</a>.</p>';
-		$subject = 'Amazon SES test (AWS SDK for PHP)';
-		$plaintext_body = 'This email was send with Amazon SES using the AWS SDK for PHP.';
-
-		return $this->updateTemplate($template_name, $subject, $html_body, $plaintext_body);
 	}
 
 	/**
@@ -405,20 +367,6 @@ class SES extends Model
 
 		/** @var Result $result */
 		return $result;
-	}
-
-	/**
-	 * Create Demo Filter
-	 *
-	 * @return Result
-	 * @throws AwsException
-	 */
-	public function createDemoEmailFilter()
-	{
-		$filter_name = 'FilterName';
-		$ip_address_range = '10.0.0.1/24';
-
-		return $this->createEmailFilter($filter_name, $ip_address_range);
 	}
 
 	/**
@@ -518,23 +466,6 @@ class SES extends Model
 	}
 
 	/**
-	 * Create Demo Receipt Rule
-	 *
-	 * @return Result
-	 * @throws AwsException
-	 */
-	public function createDemoReceiptRule()
-	{
-		$rule_name = 'Rule_Name';
-		$rule_set_name = 'Rule_Set_Name';
-		$s3_bucket = 'Bucket_Name';
-
-		$this->createReceiptRuleSet($rule_set_name);
-
-		return $this->createReceiptRule($rule_name,$rule_set_name,$s3_bucket);
-	}
-
-	/**
 	 * Once per second, return the details of the specified receipt rule set.
 	 * To use the DescribeReceiptRuleSet operation, provide the RuleSetName.
 	 *
@@ -625,22 +556,6 @@ class SES extends Model
 
 		/** @var Result $result */
 		return $result;
-	}
-
-	/**
-	 * Update Demo Receipt Rule
-	 *
-	 * @return Result
-	 * @throws AwsException
-	 */
-	public function updateDemoReceiptRule()
-	{
-		$rule_name = 'Rule_Name';
-		$rule_set_name = 'Rule_Set_Name';
-		$lambda_arn = 'Amazon Resource Name (ARN) of the AWS Lambda function';
-		$sns_topic_arn = 'Amazon Resource Name (ARN) of the Amazon SNS topic';
-
-		return $this->updateReceiptRule($rule_name,$rule_set_name,$lambda_arn,$sns_topic_arn);
 	}
 
 	/**
